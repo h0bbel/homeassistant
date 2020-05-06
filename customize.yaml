@@ -1,0 +1,26 @@
+binary_sensor.kjellerdor:
+  device_class: door
+  friendly_name: Bar Door
+  'off': closed
+  'on': open
+binary_sensor.kjokkendor:
+  device_class: door
+  'off': closed
+  'on': open
+binary_sensor.stuedor_1:
+  device_class: door
+  'off': closed
+  'on': open
+binary_sensor.stuedor_2:
+  device_class: door
+  'off': closed
+  'on': open
+binary_sensor.stuevindu:
+  device_class: window
+  'off': closed
+  'on': open
+binary_sensor.ytterdor:
+  device_class: door
+  'off': closed
+  'on': open
+

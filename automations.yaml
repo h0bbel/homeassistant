@@ -1,0 +1,128 @@
+- id: '1582667419806'
+  alias: Turn on the Window and Living room lamps when the sun sets
+  description: ''
+  trigger:
+  - event: sunset
+    offset: '15'
+    platform: sun
+  condition: []
+  action:
+  - brightness_pct: 25
+    device_id: 269e548bb1834aaeb6a072de7744170e
+    domain: light
+    entity_id: light.left_window
+    type: turn_on
+  - brightness_pct: 25
+    device_id: 416e1e1cedbd4b65ae110723db0e76d9
+    domain: light
+    entity_id: light.right_window
+    type: turn_on
+  - brightness_pct: 25
+    device_id: 80d0f754db3e4432a7451439f741be50
+    domain: light
+    entity_id: light.living_room_lamp
+    type: turn_on
+- id: '1582670178045'
+  alias: Bar Lounge Lights Motion Sensor On
+  description: ''
+  trigger:
+  - device_id: 1425caa440574b07803a1dfabdd92ec9
+    domain: binary_sensor
+    entity_id: binary_sensor.bar_sensor_downstairs_motion
+    platform: device
+    type: motion
+  - device_id: ec7d467d43284e668f7ff25288941f50
+    domain: binary_sensor
+    entity_id: binary_sensor.bar_sensor_upstairs_motion
+    platform: device
+    type: motion
+  condition:
+  - condition: device
+    device_id: 1425caa440574b07803a1dfabdd92ec9
+    domain: binary_sensor
+    entity_id: binary_sensor.bar_sensor_downstairs_motion
+    type: is_motion
+  - condition: device
+    device_id: ec7d467d43284e668f7ff25288941f50
+    domain: binary_sensor
+    entity_id: binary_sensor.bar_sensor_upstairs_motion
+    type: is_motion
+  action:
+  - device_id: dbfa8296636843ac88b3864e96c040d6
+    domain: light
+    entity_id: light.tradfri_bulb_7
+    type: turn_on
+  - device_id: b880ec84c6ab4f3fbdbb06dcbca78f8f
+    domain: light
+    entity_id: light.tradfri_bulb_6
+    type: turn_on
+- id: '1582797255311'
+  alias: Turn off the Window and Living room lamps when the sun rises
+  description: ''
+  trigger:
+  - event: sunrise
+    platform: sun
+  condition: []
+  action:
+  - device_id: 416e1e1cedbd4b65ae110723db0e76d9
+    domain: light
+    entity_id: light.right_window
+    type: turn_off
+  - device_id: 269e548bb1834aaeb6a072de7744170e
+    domain: light
+    entity_id: light.left_window
+    type: turn_off
+  - device_id: 80d0f754db3e4432a7451439f741be50
+    domain: light
+    entity_id: light.living_room_lamp
+    type: turn_off
+- id: '1584009539440'
+  alias: Bar Lounge Lights Motion Sensor Off
+  description: ''
+  trigger:
+  - device_id: 1425caa440574b07803a1dfabdd92ec9
+    domain: binary_sensor
+    entity_id: binary_sensor.bar_sensor_downstairs_motion
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+    platform: device
+    type: no_motion
+  - device_id: ec7d467d43284e668f7ff25288941f50
+    domain: binary_sensor
+    entity_id: binary_sensor.bar_sensor_upstairs_motion
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+    platform: device
+    type: motion
+  condition:
+  - condition: device
+    device_id: 1425caa440574b07803a1dfabdd92ec9
+    domain: binary_sensor
+    entity_id: binary_sensor.bar_sensor_downstairs_motion
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+    type: is_no_motion
+  - condition: device
+    device_id: ec7d467d43284e668f7ff25288941f50
+    domain: binary_sensor
+    entity_id: binary_sensor.bar_sensor_upstairs_motion
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+    type: is_no_motion
+  action:
+  - device_id: dbfa8296636843ac88b3864e96c040d6
+    domain: light
+    entity_id: light.tradfri_bulb_7
+    type: turn_off
+  - device_id: b880ec84c6ab4f3fbdbb06dcbca78f8f
+    domain: light
+    entity_id: light.tradfri_bulb_6
+    type: turn_off
