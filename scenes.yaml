@@ -123,3 +123,161 @@
       min_mireds: 153
       state: 'off'
       supported_features: 63
+- id: '1592932796904'
+  name: TV Bar Lounge
+  entities:
+    light.tradfri_bulb_6:
+      friendly_name: Bar Lounge Bulb 2
+      state: 'off'
+      supported_features: 33
+    light.tradfri_bulb_7:
+      friendly_name: Bar Lounge Bulb 1
+      state: 'off'
+      supported_features: 33
+    media_player.chromecast_bar:
+      friendly_name: Living Room Chromecast
+      state: 'off'
+      supported_features: 21389
+    media_player.samsung_42:
+      device_class: tv
+      friendly_name: Samsung 42
+      is_volume_muted: false
+      source_list:
+      - TV
+      - HDMI
+      state: 'on'
+      supported_features: 20281
+- id: '1602243828525'
+  name: LFC Matchday
+  entities:
+    light.hue_color_spot_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 255
+      hs_color:
+      - 4.221
+      - 78.039
+      rgb_color:
+      - 255
+      - 70
+      - 56
+      xy_color:
+      - 0.648
+      - 0.311
+      effect: none
+      friendly_name: Hue color spot 1
+      supported_features: 63
+      state: 'on'
+    light.hue_color_spot_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 255
+      hs_color:
+      - 16.471
+      - 100
+      rgb_color:
+      - 255
+      - 70
+      - 0
+      xy_color:
+      - 0.672
+      - 0.324
+      effect: none
+      friendly_name: Hue color spot 2
+      supported_features: 63
+      state: 'on'
+    light.hue_color_spot_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 255
+      hs_color:
+      - 4.221
+      - 78.039
+      rgb_color:
+      - 255
+      - 70
+      - 56
+      xy_color:
+      - 0.648
+      - 0.311
+      effect: none
+      friendly_name: Hue color spot 3
+      supported_features: 63
+      state: 'on'
+  icon: mdi:soccer
+- id: '1602244065978'
+  name: Brann Matchday
+  entities:
+    light.hue_color_spot_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 255
+      hs_color:
+      - 16.471
+      - 100
+      rgb_color:
+      - 255
+      - 70
+      - 0
+      xy_color:
+      - 0.672
+      - 0.324
+      effect: none
+      friendly_name: Hue color spot 1
+      supported_features: 63
+      state: 'on'
+    light.hue_color_spot_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 255
+      hs_color:
+      - 16.471
+      - 100
+      rgb_color:
+      - 255
+      - 70
+      - 0
+      xy_color:
+      - 0.672
+      - 0.324
+      effect: none
+      friendly_name: Hue color spot 2
+      supported_features: 63
+      state: 'on'
+    light.hue_color_spot_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 255
+      hs_color:
+      - 16.471
+      - 100
+      rgb_color:
+      - 255
+      - 70
+      - 0
+      xy_color:
+      - 0.672
+      - 0.324
+      effect: none
+      friendly_name: Hue color spot 3
+      supported_features: 63
+      state: 'on'
+  icon: mdi:soccer
