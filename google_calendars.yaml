@@ -1,0 +1,49 @@
+
+- cal_id: 3auf02f377tr6a2h4f470llo3dumgf48@import.calendar.google.com
+  entities:
+  - device_id: todoist
+    ignore_availability: true
+    name: Todoist
+    track: false
+
+- cal_id: jh7isnnc95frs833pq36n8taqr9h7j6a@import.calendar.google.com
+  entities:
+  - device_id: terminliste_brann
+    ignore_availability: true
+    name: Fixtures Brann
+    track: true
+
+- cal_id: christian@drible.net
+  entities:
+  - device_id: christian_drible_net
+    ignore_availability: true
+    name: christian@drible.net
+    track: false
+
+- cal_id: norwegian__en@holiday.calendar.google.com
+  entities:
+  - device_id: holidays_in_norway
+    ignore_availability: true
+    name: Holidays in Norway
+    track: false
+
+- cal_id: 7lpd7egfsuj6qces5nvimvrcu5bj4aeo@import.calendar.google.com
+  entities:
+  - device_id: liverpool
+    ignore_availability: true
+    name: Fixtures Liverpool
+    track: true
+
+- cal_id: addressbook#contacts@group.v.calendar.google.com
+  entities:
+  - device_id: birthdays
+    ignore_availability: true
+    name: Birthdays
+    track: false
+
+- cal_id: c_lngh6nurin50ptpposah6osplc@group.calendar.google.com
+  entities:
+  - device_id: home_assistant_test_calendar
+    ignore_availability: true
+    name: Home Assistant Test Calendar
+    track: true
