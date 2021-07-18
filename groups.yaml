@@ -1,0 +1,35 @@
+living_room_switches:
+  name: Living Room Switches
+  entities:
+    - switch.bird_lamp
+    - switch.bulb_lamp
+    - switch.bulb_lamp_2
+
+living_room_lamps:
+  name: Living Room Lamps
+  entities:
+    - light.left_window_new
+    - light.right_window_new
+    - light.living_room_lamp
+
+outdoor_lamps:
+  name: Outdoor Lamps
+  entities:
+    - light.bottom_left_front
+    - light.top_left_front
+    - light.bottom_right_front
+    - light.top_right_front
+    - light.outside_back_left
+    - light.outside_back_right
+
+basement_motion_sensors:
+  - binary_sensor.bar_sensor_downstairs_motion
+  - binary_sensor.bar_sensor_upstairs_motion
+  - binary_sensor.kjellerdor
+
+basement_lights:
+  - light.bar_hue_ambiance_ceiling
+  - light.bar_lightstrip
+  - light.tv_lightstrip_plus_1
+  - light.tradfri_bulb_6
+  - light.tradfri_bulb_7
