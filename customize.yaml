@@ -1,26 +1,41 @@
 binary_sensor.kjellerdor:
   device_class: door
   friendly_name: Bar Door
-  'off': closed
-  'on': open
+  "off": closed
+  "on": open
 binary_sensor.kjokkendor:
   device_class: door
-  'off': closed
-  'on': open
+  "off": closed
+  "on": open
 binary_sensor.stuedor_1:
   device_class: door
-  'off': closed
-  'on': open
+  "off": closed
+  "on": open
 binary_sensor.stuedor_2:
   device_class: door
-  'off': closed
-  'on': open
+  "off": closed
+  "on": open
 binary_sensor.stuevindu:
   device_class: window
-  'off': closed
-  'on': open
+  "off": closed
+  "on": open
 binary_sensor.ytterdor:
   device_class: door
-  'off': closed
-  'on': open
-
+  "off": closed
+  "on": open
+device_tracker.bar_ap:
+  icon: mdi:access-point
+device_tracker.julie_ap:
+  icon: mdi:access-point
+device_tracker.office_ap:
+  icon: mdi:access-point
+device_tracker.living_room_ap:
+  icon: mdi:access-point
+device_tracker.tenant_ap:
+  icon: mdi:access-point
+device_tracker.gateway:
+  icon: mdi:router-network
+device_tracker.poe_switch:
+  icon: mdi:switch
+switch.bird_lamp:
+  socket: "true"
