@@ -1,4 +1,3 @@
-
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
@@ -17,38 +16,125 @@ homeassistant:
   customize: !include customize.yaml
   latitude: 60.298089
   longitude: 5.340499
+  time_zone: Europe/Oslo
 
 group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
-verisure:
-  username: !secret verisure_username
-  password: !secret verisure_password
+# My custom stuff
 
 sensor:
   - platform: version
-  - platform: synology_dsm
-    host: !secret synology_host
-    username: !secret synology_username
-    password: !secret synology_password
-    monitored_conditions:
-      - cpu_total_load
-      - memory_real_usage
-      - network_up
-  
   - platform: tautulli
     api_key: !secret tautulli_api_key
     host: !secret tautulli_host
-
-tibber:
-  access_token: !secret tibber_access_token
-
-media_player:
-  - platform: volumio
-    host: !secret volumio_host
-    port: 3000
+  - platform: time_date
+    display_options:
+      - "time"
+      - "date"
+      - "date_time"
+      - "date_time_utc"
+      - "date_time_iso"
+      - "time_date"
+      - "time_utc"
+      - "beat"
+  - platform: rest
+    name: PostenDeliveryDays
+    resource: https://www.posten.no/levering-av-post-2020/_/component/main/1/leftRegion/1?postCode=5236
+    headers:
+      x-requested-with: XMLHttpRequest
+    scan_interval: 57600
+    value_template: "{{ value_json.nextDeliveryDays }}"
 
 air_quality:
   - platform: norway_air
+
+notify:
+  - name: slack-notify
+    platform: slack
+    api_key: !secret slack_api_key
+    default_channel: "#homeassistant"
+
+google:
+  client_id: !secret gcal_client_id
+  client_secret: !secret gcal_client_secret
+
+# Create Custom Input Boleans
+input_boolean:
+  #away_mode for holiday/travel detection
+  away_mode:
+    name: Away Mode
+    icon: mdi:home-minus-outline
+
+  #away_mode for holiday/travel detection
+  party_mode:
+    name: Party Mode
+    icon: mdi:party-popper
+
+  #pihole enable/disable
+  pihole_mode:
+    name: PiholeMode
+    icon: mdi:pi-hole
+
+# MeteoAlarm
+
+binary_sensor:
+  - platform: meteoalarm
+    country: "NO"
+    province: "Hordaland"
+
+breaking_changes:
+
+  # To Be removed / Not Working
+# Notify on Device Offline
+#trigger:
+#  - platform: state
+#    entity_id:
+#      - light.tradfri_bulb_6 #Bar Lounge Bulb 2
+#      - light.tradfri_bulb_7 #Bar Lounge Bulb 1
+#      - light.top_left_front
+#      - light.top_right_front
+#      - light.bottom_left_front
+#      - light.bottom_right_front
+#      - light.outside_back
+#      - light.outside_front
+#      - light.outside_back_left
+#      - light.outside_back_right
+#      - light.right_window_new
+#      - light.left_window_new
+#      - light.living_room_lamp
+#      - switch.bird_lamp
+#      - switch.bulb_lamp
+#      - switch.bulb_lamp_2
+#      - light.living_room_lamp
+#      - light.kitchen
+#      - light.kitchen_roof
+#      - light.dining
+#      - light.hue_color_spot_1
+#      - light.hue_color_spot_2
+#      - light.hue_color_spot_3
+#    to: unavailable
+#    for:
+#      seconds: 1
+#action:
+#  - service: notify.mobile_app_christians_iphone
+#    data:
+#      title: "Device offline!"
+#      color: red
+#      message: "📵 {{ state_attr(trigger.to_state.entity_id, 'friendly_name') }} has been offline for more than 5 minutes!"
+
+# Deprecated entries
+
+# tibber:
+#  access_token: !secret tibber_access_token
+
+# pi_hole:
+#  - host: !secret pi_hole_host
+
+# verisure:
+#  username: !secret verisure_username
+#  password: !secret verisure_password
+
+# TODO: Notify on Low Battery
