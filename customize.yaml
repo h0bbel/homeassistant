@@ -23,3 +23,19 @@ binary_sensor.ytterdor:
   device_class: door
   "off": closed
   "on": open
+device_tracker.bar_ap:
+  icon: mdi:access-point
+device_tracker.julie_ap:
+  icon: mdi:access-point
+device_tracker.office_ap:
+  icon: mdi:access-point
+device_tracker.living_room_ap:
+  icon: mdi:access-point
+device_tracker.tenant_ap:
+  icon: mdi:access-point
+device_tracker.gateway:
+  icon: mdi:router-network
+device_tracker.poe_switch:
+  icon: mdi:switch
+switch.bird_lamp:
+  socket: "true"

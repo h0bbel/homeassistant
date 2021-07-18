@@ -47,3 +47,10 @@
     ignore_availability: true
     name: Home Assistant Test Calendar
     track: true
+
+- cal_id: en.norwegian#holiday@group.v.calendar.google.com
+  entities:
+  - device_id: holidays_in_norway
+    ignore_availability: true
+    name: Holidays in Norway
+    track: true
