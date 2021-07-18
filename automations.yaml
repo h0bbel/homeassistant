@@ -1,128 +1,413 @@
-- id: '1582667419806'
-  alias: Turn on the Window and Living room lamps when the sun sets
-  description: ''
-  trigger:
-  - event: sunset
-    offset: '15'
-    platform: sun
-  condition: []
-  action:
-  - brightness_pct: 25
-    device_id: 269e548bb1834aaeb6a072de7744170e
-    domain: light
-    entity_id: light.left_window
-    type: turn_on
-  - brightness_pct: 25
-    device_id: 416e1e1cedbd4b65ae110723db0e76d9
-    domain: light
-    entity_id: light.right_window
-    type: turn_on
-  - brightness_pct: 25
-    device_id: 80d0f754db3e4432a7451439f741be50
-    domain: light
-    entity_id: light.living_room_lamp
-    type: turn_on
-- id: '1582670178045'
+- id: "1582670178045"
   alias: Bar Lounge Lights Motion Sensor On
-  description: ''
+  description: ""
   trigger:
-  - device_id: 1425caa440574b07803a1dfabdd92ec9
-    domain: binary_sensor
-    entity_id: binary_sensor.bar_sensor_downstairs_motion
-    platform: device
-    type: motion
-  - device_id: ec7d467d43284e668f7ff25288941f50
-    domain: binary_sensor
-    entity_id: binary_sensor.bar_sensor_upstairs_motion
-    platform: device
-    type: motion
+    - device_id: 1425caa440574b07803a1dfabdd92ec9
+      domain: binary_sensor
+      entity_id: binary_sensor.bar_sensor_downstairs_motion
+      platform: device
+      type: motion
+    - device_id: ec7d467d43284e668f7ff25288941f50
+      domain: binary_sensor
+      entity_id: binary_sensor.bar_sensor_upstairs_motion
+      platform: device
+      type: motion
   condition:
-  - condition: device
-    device_id: 1425caa440574b07803a1dfabdd92ec9
-    domain: binary_sensor
-    entity_id: binary_sensor.bar_sensor_downstairs_motion
-    type: is_motion
-  - condition: device
-    device_id: ec7d467d43284e668f7ff25288941f50
-    domain: binary_sensor
-    entity_id: binary_sensor.bar_sensor_upstairs_motion
-    type: is_motion
+    - condition: device
+      device_id: 1425caa440574b07803a1dfabdd92ec9
+      domain: binary_sensor
+      entity_id: binary_sensor.bar_sensor_downstairs_motion
+      type: is_motion
+    - condition: device
+      device_id: ec7d467d43284e668f7ff25288941f50
+      domain: binary_sensor
+      entity_id: binary_sensor.bar_sensor_upstairs_motion
+      type: is_motion
   action:
-  - device_id: dbfa8296636843ac88b3864e96c040d6
-    domain: light
-    entity_id: light.tradfri_bulb_7
-    type: turn_on
-  - device_id: b880ec84c6ab4f3fbdbb06dcbca78f8f
-    domain: light
-    entity_id: light.tradfri_bulb_6
-    type: turn_on
-- id: '1582797255311'
-  alias: Turn off the Window and Living room lamps when the sun rises
-  description: ''
+    - device_id: dbfa8296636843ac88b3864e96c040d6
+      domain: light
+      entity_id: light.tradfri_bulb_7
+      type: turn_on
+    - device_id: b880ec84c6ab4f3fbdbb06dcbca78f8f
+      domain: light
+      entity_id: light.tradfri_bulb_6
+      type: turn_on
+    - service: notify.mobile_app_christians_iphone
+      data:
+        message: Movement detecteed in Bar!
+        title: Home Assistant Alert
+  mode: single
+- id: "1584009539440"
+  alias: Bar Lounge Lights Motion Sensor Off
+  description: ""
   trigger:
-  - event: sunrise
-    platform: sun
+    - device_id: 1425caa440574b07803a1dfabdd92ec9
+      domain: binary_sensor
+      entity_id: binary_sensor.bar_sensor_downstairs_motion
+      for:
+        hours: 0
+        minutes: 30
+        seconds: 0
+      platform: device
+      type: no_motion
+    - device_id: ec7d467d43284e668f7ff25288941f50
+      domain: binary_sensor
+      entity_id: binary_sensor.bar_sensor_upstairs_motion
+      for:
+        hours: 0
+        minutes: 30
+        seconds: 0
+      platform: device
+      type: motion
+  condition:
+    - condition: device
+      device_id: 1425caa440574b07803a1dfabdd92ec9
+      domain: binary_sensor
+      entity_id: binary_sensor.bar_sensor_downstairs_motion
+      for:
+        hours: 0
+        minutes: 30
+        seconds: 0
+      type: is_no_motion
+    - condition: device
+      device_id: ec7d467d43284e668f7ff25288941f50
+      domain: binary_sensor
+      entity_id: binary_sensor.bar_sensor_upstairs_motion
+      for:
+        hours: 0
+        minutes: 30
+        seconds: 0
+      type: is_no_motion
+  action:
+    - device_id: dbfa8296636843ac88b3864e96c040d6
+      domain: light
+      entity_id: light.tradfri_bulb_7
+      type: turn_off
+    - device_id: b880ec84c6ab4f3fbdbb06dcbca78f8f
+      domain: light
+      entity_id: light.tradfri_bulb_6
+      type: turn_off
+- id: "1592932570675"
+  alias: Bar Lounge TV Lights Off
+  description: ""
+  trigger: []
+  condition:
+    - condition: device
+      device_id: ce43680fe5894f98b91acffc9bdaed19
+      domain: media_player
+      entity_id: media_player.samsung_42
+      type: is_on
+  action:
+    - device_id: dbfa8296636843ac88b3864e96c040d6
+      domain: light
+      entity_id: light.tradfri_bulb_7
+      type: turn_off
+    - device_id: b880ec84c6ab4f3fbdbb06dcbca78f8f
+      domain: light
+      entity_id: light.tradfri_bulb_6
+      type: turn_off
+- id: "1595353483937"
+  alias: Turn on the outside + living room lights when the sun is set
+  description: ""
+  trigger:
+    - event: sunset
+      platform: sun
   condition: []
   action:
-  - device_id: 416e1e1cedbd4b65ae110723db0e76d9
-    domain: light
-    entity_id: light.right_window
-    type: turn_off
-  - device_id: 269e548bb1834aaeb6a072de7744170e
-    domain: light
-    entity_id: light.left_window
-    type: turn_off
-  - device_id: 80d0f754db3e4432a7451439f741be50
-    domain: light
-    entity_id: light.living_room_lamp
-    type: turn_off
-- id: '1584009539440'
-  alias: Bar Lounge Lights Motion Sensor Off
-  description: ''
+    - brightness_pct: 75
+      device_id: aff9c736e5664ac5937f4d8c28d035be
+      domain: light
+      entity_id: light.top_left_front
+      type: turn_on
+    - brightness_pct: 75
+      device_id: de8cacd292a34edcb090298b4f6fef8a
+      domain: light
+      entity_id: light.top_right_front
+      type: turn_on
+    - brightness_pct: 75
+      device_id: 26044464535144998bfe8c372a6e87e4
+      domain: light
+      entity_id: light.bottom_left_front
+      type: turn_on
+    - brightness_pct: 75
+      device_id: 729ca1b409bb4c3498b0afb7fd396ba8
+      domain: light
+      entity_id: light.bottom_right_front
+      type: turn_on
+    - brightness_pct: 15
+      device_id: 80d0f754db3e4432a7451439f741be50
+      domain: light
+      entity_id: light.living_room_lamp
+      type: turn_on
+    - type: turn_on
+      device_id: b42df1f243019bca33fa8c8aed00d24b
+      entity_id: light.left_window_new
+      domain: light
+      brightness_pct: 100
+    - type: turn_on
+      device_id: 1c74c051ef5f9281a8594d40f0845a87
+      entity_id: light.right_window_new
+      domain: light
+      brightness_pct: 100
+    - brightness_pct: 75
+      device_id: e0dd4c3a6053416bbe6f655c0ba4d589
+      domain: light
+      entity_id: light.outside_back_right
+      type: turn_on
+    - brightness_pct: 75
+      device_id: e0dd4c3a6053416bbe6f655c0ba4d589
+      domain: light
+      entity_id: light.outside_back_right
+      type: turn_on
+    - data:
+        message: The sun has set — lights turned on!
+        title: Home Assistant Alert
+      service: notify.mobile_app_christians_iphone
+    - type: turn_on
+      device_id: 75e258cf1aa3e9f242f1a52ab37b551b
+      entity_id: switch.bulb_lamp
+      domain: switch
+    - type: turn_on
+      device_id: 650f0bebb541c9a575fda0c51a122cde
+      entity_id: switch.bird_lamp
+      domain: switch
+  mode: single
+- id: "1595353551704"
+  alias: Turn off the outside + living room lights when the sun rises
+  description: ""
   trigger:
-  - device_id: 1425caa440574b07803a1dfabdd92ec9
-    domain: binary_sensor
-    entity_id: binary_sensor.bar_sensor_downstairs_motion
-    for:
-      hours: 0
-      minutes: 30
-      seconds: 0
-    platform: device
-    type: no_motion
-  - device_id: ec7d467d43284e668f7ff25288941f50
-    domain: binary_sensor
-    entity_id: binary_sensor.bar_sensor_upstairs_motion
-    for:
-      hours: 0
-      minutes: 30
-      seconds: 0
-    platform: device
-    type: motion
-  condition:
-  - condition: device
-    device_id: 1425caa440574b07803a1dfabdd92ec9
-    domain: binary_sensor
-    entity_id: binary_sensor.bar_sensor_downstairs_motion
-    for:
-      hours: 0
-      minutes: 30
-      seconds: 0
-    type: is_no_motion
-  - condition: device
-    device_id: ec7d467d43284e668f7ff25288941f50
-    domain: binary_sensor
-    entity_id: binary_sensor.bar_sensor_upstairs_motion
-    for:
-      hours: 0
-      minutes: 30
-      seconds: 0
-    type: is_no_motion
+    - event: sunrise
+      platform: sun
+  condition: []
   action:
-  - device_id: dbfa8296636843ac88b3864e96c040d6
-    domain: light
-    entity_id: light.tradfri_bulb_7
-    type: turn_off
-  - device_id: b880ec84c6ab4f3fbdbb06dcbca78f8f
-    domain: light
-    entity_id: light.tradfri_bulb_6
-    type: turn_off
+    - device_id: aff9c736e5664ac5937f4d8c28d035be
+      domain: light
+      entity_id: light.top_left_front
+      type: turn_off
+    - device_id: de8cacd292a34edcb090298b4f6fef8a
+      domain: light
+      entity_id: light.top_right_front
+      type: turn_off
+    - device_id: 26044464535144998bfe8c372a6e87e4
+      domain: light
+      entity_id: light.bottom_left_front
+      type: turn_off
+    - device_id: 729ca1b409bb4c3498b0afb7fd396ba8
+      domain: light
+      entity_id: light.bottom_right_front
+      type: turn_off
+    - device_id: 80d0f754db3e4432a7451439f741be50
+      domain: light
+      entity_id: light.living_room_lamp
+      type: turn_off
+    - type: turn_off
+      device_id: b42df1f243019bca33fa8c8aed00d24b
+      entity_id: light.left_window_new
+      domain: light
+    - type: turn_off
+      device_id: 1c74c051ef5f9281a8594d40f0845a87
+      entity_id: light.right_window_new
+      domain: light
+    - device_id: e0dd4c3a6053416bbe6f655c0ba4d589
+      domain: light
+      entity_id: light.outside_back_right
+      type: turn_off
+    - device_id: 0b47a3a1f26a4405a091fa0403709b43
+      domain: light
+      entity_id: light.outside_back_left
+      type: turn_off
+    - type: turn_off
+      device_id: 75e258cf1aa3e9f242f1a52ab37b551b
+      entity_id: switch.bulb_lamp
+      domain: switch
+    - type: turn_off
+      device_id: 650f0bebb541c9a575fda0c51a122cde
+      entity_id: switch.bird_lamp
+      domain: switch
+  mode: single
+- id: "1596053307315"
+  alias: Sonos Night Mode Enable
+  description: ""
+  trigger:
+    - at: "23:00:00"
+      platform: time
+  condition: []
+  action:
+    - data:
+        night_sound: "yes"
+        speech_enhance: "yes"
+        status_light: "no"
+      entity_id: media_player.living_room
+      service: sonos.set_option
+    - data:
+        message: Sonos Night Mode Enabled
+      service: notify.notify
+  mode: single
+- id: "1596053498948"
+  alias: Sonos Night Mode Disable
+  description: ""
+  trigger:
+    - at: 08:00:00
+      platform: time
+  condition: []
+  action:
+    - data:
+        night_sound: "no"
+        speech_enhance: "no"
+        status_light: "yes"
+      entity_id: media_player.living_room
+      service: sonos.set_option
+  mode: single
+- id: "1602153397652"
+  alias: Turn off lights when Plex playing on Samsung 65
+  description: ""
+  trigger:
+    - platform: state
+      from: idle
+      to: playing
+      entity_id: media_player.plex_plex_for_samsung_tv_2020
+  condition: []
+  action:
+    - type: turn_off
+      device_id: 03df33be4bb64fcfa21c16af5279aa1d
+      entity_id: light.hue_ambiance_pendant_1
+      domain: light
+  mode: single
+- id: "1602242368188"
+  alias: LFC Match Celebrations
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: sensor.lfc_event_0
+  condition: []
+  action:
+    - service: notify.mobile_app_christians_iphone
+      data:
+        message: LFC Change Light Color {{ states('sensor.LFC_event_0') }}
+        title: LFC Calendar Triggered
+  mode: single
+- id: "1602242401257"
+  alias: Brann Match Celebrations
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: sensor.brann_event_0
+  condition: []
+  action:
+    - service: notify.mobile_app_christians_iphone
+      data:
+        message: Brann Change Light Color {{ states('sensor.brann_event_0') }}
+        title: Brann Calendar Triggered
+  mode: single
+- id: "1603548048722"
+  alias: Notify Coffee Brewing
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: switch.coffee_machine_outlet
+      from: "off"
+      to: "on"
+  condition: []
+  action:
+    - service: notify.mobile_app_christians_iphone
+      data:
+        message: There be coffee brewing in the kitchen!
+        title: Home Assistant Alert
+  mode: single
+- id: "1603548220165"
+  alias: Automatically turn off coffee maker
+  description: ""
+  trigger:
+    - platform: device
+      type: turned_on
+      device_id: 1c5072647c6046a0bc2c740d7da0b1d5
+      entity_id: switch.coffee_machine_outlet
+      domain: switch
+      for:
+        hours: 0
+        minutes: 30
+        seconds: 0
+  condition: []
+  action:
+    - type: turn_off
+      device_id: 1c5072647c6046a0bc2c740d7da0b1d5
+      entity_id: switch.coffee_machine_outlet
+      domain: switch
+    - service: notify.mobile_app_christians_iphone
+      data:
+        message: Automatic Coffee Machine Off after 30 mins
+        title: Home Assistant Alert
+  mode: single
+- id: "1606824816245"
+  alias: Scheduled Coffee
+  description: ""
+  trigger:
+    - platform: time
+      at: 07:10:00
+  condition: []
+  action:
+    - type: turn_on
+      device_id: 1c5072647c6046a0bc2c740d7da0b1d5
+      entity_id: switch.coffee_machine_outlet
+      domain: switch
+  mode: single
+- id: "1618902213502"
+  alias: Toggle Cloud Light
+  description: ""
+  trigger:
+    - platform: webhook
+      webhook_id: "100"
+  condition: []
+  action:
+    - type: toggle
+      device_id: 62f13da49d37122422a99fd9a0672db8
+      entity_id: switch.verisure_switch
+      domain: switch
+  mode: single
+- id: "1622712808024"
+  alias: Notify UniFi AP Offline
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: device_tracker.bar_ap
+      from: home
+      for: 30 seconds
+      to: away
+    - platform: state
+      entity_id: device_tracker.julie_ap
+      from: home
+      to: away
+      for: 30 seconds
+    - platform: state
+      entity_id: device_tracker.office_ap
+      from: home
+      to: away
+      for: 30 seconds
+    - platform: state
+      entity_id: device_tracker.living_room_ap
+      from: home
+      to: away
+      for: 30 seconds
+    - platform: state
+      entity_id: device_tracker.tenant_ap
+      from: home
+      to: away
+      for: 30 seconds
+  condition: []
+  action:
+    - service: notify.mobile_app_christians_iphone
+      data:
+        message: Offline UniFi AP
+        title: Offline UniFi AP
+  mode: single
+- id: "1624346947824"
+  alias: Restore Samba Backup sensor on startup
+  trigger:
+    - event: start
+      platform: homeassistant
+  action:
+    - service: hassio.addon_stdin
+      data:
+        addon: 15d21743_samba_backup
+        input: restore-sensor
+  mode: single
