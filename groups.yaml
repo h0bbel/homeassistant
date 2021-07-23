@@ -21,6 +21,10 @@ outdoor_lamps:
     - light.top_right_front
     - light.outside_back_left
     - light.outside_back_right
+    - light.back_bottom_left
+    - light.back_top_left
+    - light.back_bottom_right
+    - light.back_top_right
 
 basement_motion_sensors:
   - binary_sensor.bar_sensor_downstairs_motion
