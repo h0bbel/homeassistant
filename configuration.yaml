@@ -17,6 +17,7 @@ homeassistant:
   latitude: 60.298089
   longitude: 5.340499
   time_zone: Europe/Oslo
+  currency: NOK
 
 group: !include groups.yaml
 automation: !include automations.yaml
@@ -27,9 +28,9 @@ scene: !include scenes.yaml
 
 sensor:
   - platform: version
-  - platform: tautulli
-    api_key: !secret tautulli_api_key
-    host: !secret tautulli_host
+  #  - platform: tautulli
+  #    api_key: !secret tautulli_api_key
+  #    host: !secret tautulli_host
   - platform: time_date
     display_options:
       - "time"
@@ -45,7 +46,7 @@ sensor:
     resource: https://www.posten.no/levering-av-post-2020/_/component/main/1/leftRegion/1?postCode=5236
     headers:
       x-requested-with: XMLHttpRequest
-    scan_interval: 57600
+    scan_interval: 3600
     value_template: "{{ value_json.nextDeliveryDays }}"
 
 air_quality:
@@ -78,12 +79,60 @@ input_boolean:
     name: PiholeMode
     icon: mdi:pi-hole
 
+  #Turn bar into office
+  bar_mode:
+    name: BarMode
+    icon: mdi:beer-outline
+
 # MeteoAlarm
 
 binary_sensor:
   - platform: meteoalarm
     country: "NO"
     province: "Hordaland"
+
+# Sensibo
+
+climate:
+  - platform: sensibo
+    sensibo_api_key: !secret sensibo_api_key
+
+# Actions for iOS / WatchOS widgets
+
+ios:
+  actions:
+    - name: Night
+      background_color: "#606060"
+      label:
+        text: "Enable Night Mode"
+        color: "#DCDCDC"
+      icon:
+        icon: lightbulb-off
+        color: "ffffff"
+    - name: pi-hole-30
+      background_color: "#606060"
+      label:
+        text: "Disable Pi-Hole 30 min"
+        color: "#DCDCDC"
+      icon:
+        icon: mdi:dns
+        color: "ffffff"
+    - name: bar2Office
+      background_color: "#606060"
+      label:
+        text: "Turn Bar into Office"
+        color: "#DCDCDC"
+      icon:
+        icon: mdi:beer-outline
+        color: "ffffff"
+    - name: bar2bar
+      background_color: "#606060"
+      label:
+        text: "Turn Bar into Bar"
+        color: "#DCDCDC"
+      icon:
+        icon: mdi:beer-outline
+        color: "ffffff"
 
 breaking_changes:
 
