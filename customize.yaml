@@ -39,3 +39,18 @@ device_tracker.poe_switch:
   icon: mdi:switch
 switch.bird_lamp:
   socket: "true"
+
+sensor.bar_ap_status:
+  icon: mdi:access-point
+sensor.julie_ap_status:
+  icon: mdi:access-point
+sensor.office_ap_status:
+  icon: mdi:access-point
+sensor.living_room_ap_status:
+  icon: mdi:access-point
+sensor.tenant_ap_status:
+  icon: mdi:access-point
+sensor.gateway_status:
+  icon: mdi:router-network
+sensor.poe_status:
+  icon: mdi:switch

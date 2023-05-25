@@ -3,14 +3,22 @@ living_room_switches:
   entities:
     - switch.bird_lamp
     - switch.bulb_lamp
-    - switch.bulb_lamp_2
 
 living_room_lamps:
   name: Living Room Lamps
   entities:
     - light.left_window_new
     - light.right_window_new
-    - light.living_room_lamp
+    - light.living_room_bulb_1_tradfri
+    - light.hue_filament_bulb_1_living_room
+
+hue_living_room_lamps:
+  name: Hue Living Room Lamps
+  entities:
+    - light.dining
+    - light.hallway
+    - light.hue_being_ceiling_1
+    - light.hue_ambiance_pendant_1
 
 outdoor_lamps:
   name: Outdoor Lamps
@@ -37,3 +45,27 @@ basement_lights:
   - light.tv_lightstrip_plus_1
   - light.tradfri_bulb_6
   - light.tradfri_bulb_7
+  - light.hue_go_1
+  - light.hue_go_2
+
+bar_group:
+  - light.bar_hue_ambiance_ceiling
+  - light.bar_lightstrip
+  - light.tv_lightstrip_plus_1
+  - light.tradfri_bulb_6
+  - light.tradfri_bulb_7
+  - light.hue_go_1
+  - light.hue_go_2
+  - switch.bar_outlet
+
+bar_led:
+  - light.bar_lightstrip
+  - light.tv_lightstrip_plus_1
+
+bar_lounge:
+  - light.tradfri_bulb_6
+  - light.tradfri_bulb_7
+
+bar_go:
+  - light.hue_go_1
+  - light.hue_go_2
