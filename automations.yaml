@@ -19,6 +19,10 @@
   trigger:
   - platform: webhook
     webhook_id: '100'
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
   condition: []
   action:
   - type: toggle
@@ -52,3 +56,51 @@
       exclude:
         entity_id:
         - sensor.christians_iphone_2_battery_level
+- id: '1679658995046'
+  alias: Mount Synology
+  description: ''
+  trigger:
+  - platform: homeassistant
+    event: start
+  condition: []
+  action:
+  - service: shell_command.mount_syn_folder
+    data: {}
+  mode: single
+- id: '1683188694035'
+  alias: HA Update Notifications
+  description: ''
+  use_blueprint:
+    path: mdegat01/update_notifications.yaml
+    input:
+      update_entities:
+      - update.home_assistant_core_update
+      - update.home_assistant_operating_system_update
+      - update.home_assistant_supervisor_update
+      mobile_app_device: d6f5bb00c6bd80e6f8447e4fe02bf809
+      run_config_check: true
+      reminder_hours: None
+- id: '1683204444816'
+  alias: Coffee Auto Off
+  description: Automatically turn off coffee maker
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: 1c5072647c6046a0bc2c740d7da0b1d5
+    entity_id: switch.coffee_machine_outlet
+    domain: switch
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+  condition: []
+  action:
+  - service: switch.turn_off
+    data: {}
+    target:
+      device_id: 1c5072647c6046a0bc2c740d7da0b1d5
+  - service: notify.mobile_app_christians_iphone_2
+    data:
+      message: Automatic Turn off!
+      title: ☕️ ☕️ ☕️
+  mode: single
