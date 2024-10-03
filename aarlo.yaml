@@ -1,0 +1,5 @@
+version: 1
+aarlo:
+  mqtt_hostname_check: false
+  save_media_to: /media/nasfiles/arlo/${SN}/${Y}/${m}/${d}/${t}
+  backend: sse

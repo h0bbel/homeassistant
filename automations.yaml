@@ -1,18 +1,3 @@
-- id: '1602153397652'
-  alias: Turn off lights when Plex playing on Samsung 65
-  description: ''
-  trigger:
-  - platform: state
-    from: idle
-    to: playing
-    entity_id: media_player.plex_plex_for_samsung_tv_2020
-  condition: []
-  action:
-  - type: turn_off
-    device_id: 03df33be4bb64fcfa21c16af5279aa1d
-    entity_id: light.hue_ambiance_pendant_1
-    domain: light
-  mode: single
 - id: '1618902213502'
   alias: Toggle Cloud Light
   description: ''
@@ -67,40 +52,173 @@
   - service: shell_command.mount_syn_folder
     data: {}
   mode: single
-- id: '1683188694035'
-  alias: HA Update Notifications
+- id: '1701207225668'
+  alias: Cloud Lightning
+  description: ''
+  trigger:
+  - platform: webhook
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
+    webhook_id: storm
+  condition: []
+  action:
+  - service: light.turn_on
+    target:
+      entity_id: []
+      device_id:
+      - f2253fe283ebeeb725aac76887945f22
+      area_id: []
+    data:
+      effect: Lightning
+      rgb_color:
+      - 255
+      - 255
+      - 255
+  mode: single
+- id: '1701345981099'
+  alias: Cloud Red
+  description: ''
+  trigger:
+  - platform: webhook
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
+    webhook_id: cloud-red
+  condition: []
+  action:
+  - service: light.turn_on
+    target:
+      entity_id: []
+      device_id:
+      - f2253fe283ebeeb725aac76887945f22
+      area_id: []
+    data:
+      rgb_color:
+      - 255
+      - 0
+      - 0
+      effect: Solid
+  mode: single
+- id: '1701346249652'
+  alias: Cloud Blue
+  description: ''
+  trigger:
+  - platform: webhook
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
+    webhook_id: cloud-blue
+  condition: []
+  action:
+  - service: light.turn_on
+    target:
+      entity_id: []
+      device_id:
+      - f2253fe283ebeeb725aac76887945f22
+      area_id: []
+    data:
+      effect: Solid
+      rgb_color:
+      - 0
+      - 76
+      - 255
+  mode: single
+- id: '1701346601362'
+  alias: Cloud White
+  description: ''
+  trigger:
+  - platform: webhook
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
+    webhook_id: cloud-white
+  condition: []
+  action:
+  - service: light.toggle
+    target:
+      entity_id: []
+      device_id:
+      - f2253fe283ebeeb725aac76887945f22
+      area_id: []
+    data:
+      rgb_color:
+      - 245
+      - 245
+      - 245
+      effect: Solid
+  mode: single
+- id: '1707217786984'
+  alias: Update notifications
   description: ''
   use_blueprint:
     path: mdegat01/update_notifications.yaml
     input:
+      mobile_app_device: d6f5bb00c6bd80e6f8447e4fe02bf809
       update_entities:
       - update.home_assistant_core_update
       - update.home_assistant_operating_system_update
       - update.home_assistant_supervisor_update
-      mobile_app_device: d6f5bb00c6bd80e6f8447e4fe02bf809
+      mobile_app_device_2: d6f5bb00c6bd80e6f8447e4fe02bf809
       run_config_check: true
-      reminder_hours: None
-- id: '1683204444816'
-  alias: Coffee Auto Off
-  description: Automatically turn off coffee maker
+- id: '1716884266375'
+  alias: Doorbell Video Livingroom Nest
+  description: ''
   trigger:
-  - platform: device
-    type: turned_on
-    device_id: 1c5072647c6046a0bc2c740d7da0b1d5
-    entity_id: switch.coffee_machine_outlet
-    domain: switch
+  - platform: state
+    entity_id:
+    - input_button.doorbell_virtual_button
+  condition: []
+  action:
+  - service: camera.play_stream
+    metadata: {}
+    data:
+      format: hls
+      media_player: media_player.living_room_2
+    target:
+      entity_id: camera.aarlo_doorbell
+  mode: single
+- id: '1718956792328'
+  alias: UPS Unavailable Notification
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.ups_battery_charge
+    from:
+    to: unavailable
     for:
       hours: 0
-      minutes: 15
+      minutes: 1
       seconds: 0
   condition: []
   action:
-  - service: switch.turn_off
-    data: {}
-    target:
-      device_id: 1c5072647c6046a0bc2c740d7da0b1d5
   - service: notify.mobile_app_christians_iphone_2
     data:
-      message: Automatic Turn off!
-      title: ☕️ ☕️ ☕️
+      message: "UPS Offline again \U0001FAAB"
+      title: UPS Event
+  mode: single
+- id: '1718979526238'
+  alias: UPS Online Notification
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.ups_status
+    from: unavailable
+    to:
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  condition: []
+  action:
+  - service: notify.mobile_app_christians_iphone_2
+    data:
+      message: "\U0001F50B UPS Online again "
+      title: UPS Event
   mode: single
