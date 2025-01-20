@@ -222,3 +222,106 @@
       message: "\U0001F50B UPS Online again "
       title: UPS Event
   mode: single
+- id: '1732448687057'
+  alias: Gym Lights On/Off
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: e60364c49ac435b7501e1dedc3414580
+    type: action
+    subtype: toggle
+    trigger: device
+  conditions: []
+  actions:
+  - type: toggle
+    device_id: 4704fdcff0f46becf4831e763fbb69bf
+    entity_id: 793e539428dec2eeb57e0f6604e635f1
+    domain: light
+  mode: single
+- id: '1732448894365'
+  alias: Gym Brightness Up
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: e60364c49ac435b7501e1dedc3414580
+    type: action
+    subtype: brightness_up_click
+    trigger: device
+  conditions: []
+  actions:
+  - device_id: 4704fdcff0f46becf4831e763fbb69bf
+    domain: light
+    entity_id: 793e539428dec2eeb57e0f6604e635f1
+    type: brightness_increase
+  mode: single
+- id: '1732448942273'
+  alias: Gym Brightness Down
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: e60364c49ac435b7501e1dedc3414580
+    type: action
+    subtype: brightness_down_click
+    trigger: device
+  conditions: []
+  actions:
+  - device_id: 4704fdcff0f46becf4831e763fbb69bf
+    domain: light
+    entity_id: 793e539428dec2eeb57e0f6604e635f1
+    type: brightness_decrease
+  mode: single
+- id: '1733397222540'
+  alias: Varmekabler Bad >30
+  description: ''
+  triggers:
+  - type: temperature
+    device_id: 15becaa5f6aa157b626aa79bf994ac28
+    entity_id: cca94149328324f7953823c061b8d75c
+    domain: sensor
+    trigger: device
+    above: 30
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  conditions: []
+  actions:
+  - action: notify.notify
+    metadata: {}
+    data:
+      message: Varmekabler bad >30
+  mode: single
+- id: '1733397276363'
+  alias: Varmekabler bad <22
+  description: ''
+  triggers:
+  - type: temperature
+    device_id: 15becaa5f6aa157b626aa79bf994ac28
+    entity_id: cca94149328324f7953823c061b8d75c
+    domain: sensor
+    trigger: device
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+    below: 22
+  conditions: []
+  actions:
+  - action: notify.notify
+    metadata: {}
+    data:
+      message: Varmekabler bad <22
+  mode: single
+- id: '1735805481133'
+  alias: Tag Test is scanned
+  description: ''
+  triggers:
+  - trigger: tag
+    tag_id: f4bb661b-0974-4cf9-afa9-11c1a5ac98a8
+  conditions: []
+  actions:
+  - action: notify.notify
+    metadata: {}
+    data:
+      message: Tag scanned
+  mode: single

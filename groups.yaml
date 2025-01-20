@@ -43,8 +43,7 @@ basement_lights:
   - light.bar_hue_ambiance_ceiling
   - light.bar_lightstrip
   - light.tv_lightstrip_plus_1
-  - light.tradfri_bulb_6
-  - light.tradfri_bulb_7
+  - light.0x90fd9ffffe0fd3f8
   - light.hue_go_1
   - light.hue_go_2
   - light.hue_filament_bulb_2
@@ -54,8 +53,6 @@ bar_group:
   - light.bar_hue_ambiance_ceiling
   - light.bar_lightstrip
   - light.tv_lightstrip_plus_1
-  - light.tradfri_bulb_6
-  - light.tradfri_bulb_7
   - light.hue_go_1
   - light.hue_go_2
   - switch.tradfri_socket_bar
@@ -64,10 +61,6 @@ bar_group:
 bar_led:
   - light.bar_lightstrip
   - light.tv_lightstrip_plus_1
-
-bar_lounge:
-  - light.tradfri_bulb_6
-  - light.tradfri_bulb_7
 
 bar_go:
   - light.hue_go_1
