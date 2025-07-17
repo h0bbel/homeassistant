@@ -17,7 +17,19 @@ homeassistant:
   latitude: 60.298089
   longitude: 5.340499
   time_zone: Europe/Oslo
+  country: "NO"
   currency: NOK
+  auth_providers:
+    - type: trusted_networks
+      allow_bypass_login: True
+      trusted_networks:
+        - 192.168.5.0/24
+        - 192.168.200.49/32
+        - 192.168.200.78/32
+        - 192.168.60.175/32
+    - type: homeassistant
+
+image_upload:
 
 group: !include groups.yaml
 automation: !include automations.yaml
@@ -25,12 +37,53 @@ script: !include scripts.yaml
 scene: !include scenes.yaml
 
 # My custom stuff
+# Mount Synology folder
+shell_command:
+  mount_syn_folder: "mount -t cifs -o vers=3.0,noserverino,username=ha,password=fr3Kecap,domain=WORKGROUP //192.168.5.32/Files /media/nasfiles"
+
+# Example Todoist setup
+#calendar:
+#  - platform: todoist
+#    token: 56138679ac679b9f1a88c68d553ba58f756b03e6
 
 sensor:
-  - platform: version
-  #  - platform: tautulli
-  #    api_key: !secret tautulli_api_key
-  #    host: !secret tautulli_host
+  #  - platform: aarlo #arlo
+  #    monitored_conditions:
+  #      - total_cameras
+  #      - last_capture
+  #      - recent_activity
+  #      - captured_today
+  #      - battery_level
+  #      - signal_strength
+  #      - temperature
+  #      - humidity
+  #      - air_quality
+
+  - platform: tautulli
+    api_key: !secret tautulli_api_key
+    host: !secret tautulli_host
+    port: !secret tautulli_port
+    monitored_users:
+      - h0bbel
+
+  - platform: rest
+    resource: https://visits.evofitness.no/api/v1/locations/451c2ecf-3268-4b2b-ac62-efa3206b6b14/current
+    value_template: "{{ value_json.current }}"
+    name: evocurrent
+
+  - platform: rest
+    resource: https://dmz1.vninja.com/api/v1/stats/aggregate?site_id=vninja.net&period=day
+    value_template: "{{ value_json.results.visitors.value }}"
+    headers:
+      Authorization: !secret plausible_token
+    name: plausibletoday
+
+  - platform: rest
+    resource: https://dmz1.vninja.com/api/v1/stats/realtime/visitors?site_id=vninja.net
+    headers:
+      Authorization: !secret plausible_token
+    name: plausiblerealtime
+
   - platform: time_date
     display_options:
       - "time"
@@ -40,14 +93,320 @@ sensor:
       - "date_time_iso"
       - "time_date"
       - "time_utc"
-      - "beat"
-  - platform: rest
-    name: PostenDeliveryDays
-    resource: https://www.posten.no/levering-av-post-2020/_/component/main/1/leftRegion/1?postCode=5236
-    headers:
-      x-requested-with: XMLHttpRequest
-    scan_interval: 3600
-    value_template: "{{ value_json.nextDeliveryDays }}"
+
+  - platform: template # Custom Sensibo sensor temperature sensor.sensibo_livingroom_temperature
+    sensors:
+      sensibo_livingroom_temperature:
+        unique_id: 248bc3df-0f2c-4b6d-8fb0-b3d1e1bcc3a3
+        friendly_name: "Living Room Temperature (Sensibo)"
+        unit_of_measurement: "°C"
+        value_template: "{{ state_attr('climate.christian_s_device', 'current_temperature') }}"
+
+  - platform: template # Custom Sensibo sensor humidity sensor.sensibo_livingroom_humidity
+    sensors:
+      sensibo_livingroom_humidity:
+        unique_id: fd38d6b6-b46c-4117-bfde-1d614444d6ce
+        friendly_name: "Living Room Humidity (Sensibo)"
+        unit_of_measurement: "%"
+        value_template: "{{ state_attr('climate.christian_s_device', 'current_humidity') }}"
+
+  - platform: template
+    sensors:
+      bar_ap_status:
+        unique_id: 16e0092a-fa64-487a-b508-163ef5f43990
+        friendly_name: "Bar AP"
+        value_template: >-
+          {% if is_state('device_tracker.bar_ap', 'home') %}
+            Online
+          {% else %}
+            Offline
+          {% endif %}
+
+  - platform: template
+    sensors:
+      julie_ap_status:
+        unique_id: 08b1eee3-8b06-4a98-b232-41b3d8d4c331
+        friendly_name: "Julie AP"
+        value_template: >-
+          {% if is_state('device_tracker.julie_ap', 'home') %}
+            Online
+          {% else %}
+            Offline
+          {% endif %}
+
+  - platform: template
+    sensors:
+      office_ap_status:
+        unique_id: 824ba092-636f-46c9-b71f-b337b5a53205
+        friendly_name: "Office AP"
+        value_template: >-
+          {% if is_state('device_tracker.office_ap', 'home') %}
+            Online
+          {% else %}
+            Offline
+          {% endif %}
+
+  - platform: template
+    sensors:
+      living_room_ap_status:
+        unique_id: 20dc1b94-0231-41ad-a6c7-30fbb05d0d0a
+        friendly_name: "Living Room AP"
+        value_template: >-
+          {% if is_state('device_tracker.living_room_ap', 'home') %}
+            Online
+          {% else %}
+            Offline
+          {% endif %}
+
+  - platform: template
+    sensors:
+      tenant_ap_status:
+        unique_id: b34e3247-50ff-423a-815b-8f0b5a78a5b7
+        friendly_name: "Tenant AP"
+        value_template: >-
+          {% if is_state('device_tracker.tenant_ap', 'home') %}
+            Online
+          {% else %}
+            Offline
+          {% endif %}
+
+  - platform: template
+    sensors:
+      gateway_status:
+        unique_id: 457ba689-309f-4c72-8d3d-dc2e861a7c74
+        friendly_name: "Gateway"
+        value_template: >-
+          {% if is_state('device_tracker.unifi_next_gen_gateway_lite', 'home') %}
+            Online
+          {% else %}
+            Offline
+          {% endif %}
+
+  - platform: template
+    sensors:
+      poe_status:
+        unique_id: 5870fff3-a727-4b3c-9f20-073d2b3e3a0d
+        friendly_name: "POE Switch"
+        value_template: >-
+          {% if is_state('device_tracker.poe_switch', 'home') %}
+            Online
+          {% else %}
+            Offline
+          {% endif %}
+
+  # Custom Door Lock Sensor
+  - platform: template
+    sensors:
+      door_status:
+        unique_id: b69cc13e-a388-457f-b5a0-5e7e686da9d1
+        friendly_name: Yale Doorman
+        value_template: >-
+          {% if is_state('lock.inngangsdor', 'locked') %}
+            Locked
+          {% else %}
+            Unlocked
+          {% endif %}
+
+  # Custom Pi-Hole Combined Stats
+  - platform: template
+    sensors:
+      total_ads_pihole:
+        unique_id: edd14a48-b56b-4d28-a24a-2a97bfefb930
+        friendly_name: Combined Pi-Hole Ads blocked
+        value_template: "{{ states('sensor.pi_hole_02_ads_blocked_today')|int + states('sensor.pi_hole_ads_blocked_today')|int }}"
+
+  - platform: template
+    sensors:
+      total_pi_hole_dns_queries_cached:
+        friendly_name: Combined Pi-Hole Queries Cached
+        value_template: "{{ states('sensor.pi_hole_02_dns_queries_cached')|int + states('sensor.pi_hole_dns_queries_cached')|int }}"
+
+  # Custom Uptime Sensor for Node-Red
+  - platform: template
+    sensors:
+      ha_runtime:
+        unique_id: c1cd4f2f-023a-4797-87fc-28bc0a0878d0
+        friendly_name: "Home Assistant Runtime"
+        value_template: >
+          {{ (((as_timestamp(now()) - as_timestamp(states('sensor.uptime'))) ) /60  ) | int  }}
+
+  # Custom "i dag" sensor for Posten
+  - platform: template
+    sensors:
+      post_idag:
+        unique_id: d5389c16-6e2a-496d-bb64-e1bfe7bb907f
+        friendly_name: Post i dag?
+        value_template: >
+          {% if is_state('binary_sensor.posten_binary_sensor', 'on') %}
+            Yes
+          {% else %}
+            No
+          {% endif %}
+
+  - platform: template
+    sensors:
+      myups_runtime_minutes:
+        unique_id: 706c1fda-adfe-416d-8360-a1f0d9ed1215
+        friendly_name: "My UPS - Runtime Remaining"
+        unit_of_measurement: "minutes"
+        value_template: >-
+          {{ ( states('sensor.ups_battery_runtime_2') | int / 60 ) | round(0) }}
+
+  #SK Brann Next Up Date
+  - platform: template
+    sensors:
+      brann_date:
+        unique_id: 72da1ff2-bfb3-4990-9129-4b382aa69ecd
+        friendly_name: SK Brann next game
+        value_template: >-
+          {% if is_state('calendar.terminliste_brann', 'on') %}
+            Playing Now
+          {% else %}
+            {% set st = state_attr('calendar.terminliste_brann', 'start_time') %}
+            {% if st != None %}
+              {{ as_timestamp(st) | timestamp_custom("%A, %b %d at %-H:%M") }}
+            {% else %}
+              No games scheduled
+            {% endif %}
+          {% endif %}
+
+  # Scenic
+  - platform: template
+    sensors:
+      scenic_remaining_kilometers:
+        friendly_name: "Remaining Kilometers"
+        unit_of_measurement: "km"
+        value_template: >
+          {% set current = states('sensor.scenic_mileage') | float(0) %}
+          {% set max_km = 8000 %}
+          {% set starting_km = states('input_number.starting_odometer_april_7') | float(0) %}
+          {% set start_date = as_datetime('2025-04-07').date() %}
+          {% set end_date = as_datetime('2026-04-07').date() %}
+          {% set today = now().date() %}
+
+          {% if start_date <= today <= end_date %}
+            {% set used = current - starting_km %}
+            {% set remaining = max_km - used %}
+            {{ remaining | round(0) if remaining > 0 else 0 }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      scenic_mileage_percentage_remaining:
+        friendly_name: "Mileage Remaining (%)"
+        unit_of_measurement: "%"
+        value_template: >
+          {% set current = states('sensor.scenic_mileage') | float(0) %}
+          {% set max_km = 8000 %}
+          {% set starting_km = states('input_number.starting_odometer_april_7') | float(0) %}
+          {% set start_date = as_datetime('2025-04-07').date() %}
+          {% set end_date = as_datetime('2026-04-07').date() %}
+          {% set today = now().date() %}
+
+          {% if start_date <= today <= end_date %}
+            {% set used = current - starting_km %}
+            {% set percentage_used = (used / max_km * 100) %}
+            {% set remaining = 100 - percentage_used %}
+            {{ remaining | round(1) if remaining > 0 else 0 }}
+          {% else %}
+            unknown
+          {% endif %}
+
+  - platform: template
+    sensors:
+      year_over_year_mileage_diff:
+        friendly_name: "Year-over-Year Mileage Change"
+        unit_of_measurement: "km"
+        value_template: >
+          {% set y2026 = states('input_number.starting_odometer_2026') | float(0) %}
+          {% set y2025 = states('input_number.starting_odometer_2025') | float(0) %}
+          {% if y2026 > 0 and y2025 > 0 %}
+            {{ (y2026 - y2025) | round(0) }}
+          {% else %}
+            unknown
+          {% endif %}
+
+  # SK Brann Next Opponent
+  - platform: template
+    sensors:
+      brann_opponent:
+        unique_id: 35403c8b-8a88-442a-9782-0c1ca7007e3d
+        friendly_name: SK Brann Next Opponent
+        value_template: "{{ state_attr('calendar.terminliste_brann','message') }}"
+
+  #LFC Next Up Date
+  - platform: template
+    sensors:
+      lfc_date:
+        unique_id: 844cab1d-fc62-4554-a0b7-446ec4edefbe
+        friendly_name: LFC next game
+        value_template: >-
+          {% if is_state('calendar.liverpool', 'on') %}
+            Playing Now
+          {% else %}
+            {% set st = state_attr('calendar.liverpool', 'start_time') %}
+            {% if st != None %}
+              {{ as_timestamp(st) | timestamp_custom("%A, %b %d at %-H:%M") }}
+            {% else %}
+              No games scheduled
+            {% endif %}
+          {% endif %}
+
+  # LFC Next Opponent
+  - platform: template
+    sensors:
+      lfc_opponent:
+        unique_id: f1970b7c-65ed-483e-919a-0116776ab2f5
+        friendly_name: LFC Next Opponent
+        value_template: "{{ state_attr('calendar.liverpool','message') }}"
+
+  # Custom Average Temperature Sensors
+  - platform: average
+    name: "Stue Avg Temperature"
+    entities:
+      - sensor.netatmo_b38b_b38b_indoor_temperature
+      - sensor.stue_temperature
+      - sensor.sensibo_livingroom_temperature
+    unique_id: __legacy__
+
+  - platform: average
+    name: "Second Floor Avg Temperature"
+    entities:
+      - sensor.soveromsgang_1_temperature
+      - sensor.soveromsgang_2_temperature
+    unique_id: __legacy__
+
+  - platform: average
+    name: "Basement Avg Temperature 2"
+    entities:
+      - sensor.bar_smoke_detector_temperature
+      - sensor.bar_sensor_upstairs_temperature
+      - sensor.bar_sensor_downstairs_temperature
+
+  - platform: average
+    name: "House Avg Humidity"
+    entities:
+      - sensor.netatmo_b38b_b38b_indoor_humidity
+      - sensor.gang_humidity
+      - sensor.soveromsgang_1_humidity
+      - sensor.soveromsgang_2_humidity
+      - sensor.stue_humidity
+      - sensor.sensibo_livingroom_humidity
+      - sensor.bar_smoke_detector_humidity
+    unique_id: __legacy__
+
+  - platform: energyscore
+    name: Heater Energy Score
+    unique_id: AC816DB0-868A-431C-92AE-CBD46A864DC5
+    price_entity: sensor.electricity_price_bjornevegen_38_b
+    energy_entity: sensor.last_meter_consumption_bjornevegen_38_b
+
+  - platform: energyscore
+
+    name: Easee Energy Score
+    unique_id: BC816DB0-868A-431C-92AE-CBD46A864DC5
+    price_entity: sensor.electricity_price_bjornevegen_38_b
+    energy_entity: sensor.easee_e_lifetime_energy
 
 air_quality:
   - platform: norway_air
@@ -58,44 +417,37 @@ notify:
     api_key: !secret slack_api_key
     default_channel: "#homeassistant"
 
-google:
-  client_id: !secret gcal_client_id
-  client_secret: !secret gcal_client_secret
+# Scenic KM per 07.04
+input_number:
+  starting_odometer_april_7:
+    name: Starting Odometer (April 7, 2025)
+    min: 0
+    max: 500000
+    step: 1
+    unit_of_measurement: "km"
+    mode: box
 
 # Create Custom Input Boleans
 input_boolean:
-  #away_mode for holiday/travel detection
+  # away_mode for holiday/travel detection
   away_mode:
     name: Away Mode
     icon: mdi:home-minus-outline
 
-  #away_mode for holiday/travel detection
+  # party_mode light overrides
   party_mode:
     name: Party Mode
     icon: mdi:party-popper
 
-  #pihole enable/disable
+  # Night Mode
+  night_mode:
+    name: Night Mode
+    icon: mdi:weather-night
+
+  # pihole enable/disable
   pihole_mode:
     name: PiholeMode
     icon: mdi:pi-hole
-
-  #Turn bar into office
-  bar_mode:
-    name: BarMode
-    icon: mdi:beer-outline
-
-# MeteoAlarm
-
-binary_sensor:
-  - platform: meteoalarm
-    country: "NO"
-    province: "Hordaland"
-
-# Sensibo
-
-climate:
-  - platform: sensibo
-    sensibo_api_key: !secret sensibo_api_key
 
 # Actions for iOS / WatchOS widgets
 
@@ -104,7 +456,7 @@ ios:
     - name: Night
       background_color: "#606060"
       label:
-        text: "Enable Night Mode"
+        text: "Night Mode"
         color: "#DCDCDC"
       icon:
         icon: lightbulb-off
@@ -117,73 +469,68 @@ ios:
       icon:
         icon: mdi:dns
         color: "ffffff"
-    - name: bar2Office
+    - name: party-mode
       background_color: "#606060"
       label:
-        text: "Turn Bar into Office"
+        text: "Party Mode"
         color: "#DCDCDC"
       icon:
-        icon: mdi:beer-outline
+        icon: mdi:party-popper
         color: "ffffff"
-    - name: bar2bar
+    - name: away-mode
       background_color: "#606060"
       label:
-        text: "Turn Bar into Bar"
+        text: "Away Mode"
         color: "#DCDCDC"
       icon:
-        icon: mdi:beer-outline
+        icon: mdi:party-popper
         color: "ffffff"
+tibber_data:
+  email: christian@drible.net
+  password: !secret tibber_data_password
 
-breaking_changes:
+#aarlo:
+#  mqtt_hostname_check: False
+#  username: !secret arlo_username
+#  password: !secret arlo_password
+#  tfa_source: imap
+#  tfa_type: email
+#  tfa_host: imap.gmail.com
+#  tfa_username: !secret gmail_username
+#  tfa_password: !secret gmail_app_password
+#save_media_to: "/config/www/cameras/media/${SN}/${Y}/${m}/${d}/${t}"
+#  save_media_to: "/media/nasfiles/arlo/${SN}/${Y}/${m}/${d}/${t}"
+#  backend: sse
 
-  # To Be removed / Not Working
-# Notify on Device Offline
-#trigger:
-#  - platform: state
-#    entity_id:
-#      - light.tradfri_bulb_6 #Bar Lounge Bulb 2
-#      - light.tradfri_bulb_7 #Bar Lounge Bulb 1
-#      - light.top_left_front
-#      - light.top_right_front
-#      - light.bottom_left_front
-#      - light.bottom_right_front
-#      - light.outside_back
-#      - light.outside_front
-#      - light.outside_back_left
-#      - light.outside_back_right
-#      - light.right_window_new
-#      - light.left_window_new
-#      - light.living_room_lamp
-#      - switch.bird_lamp
-#      - switch.bulb_lamp
-#      - switch.bulb_lamp_2
-#      - light.living_room_lamp
-#      - light.kitchen
-#      - light.kitchen_roof
-#      - light.dining
-#      - light.hue_color_spot_1
-#      - light.hue_color_spot_2
-#      - light.hue_color_spot_3
-#    to: unavailable
-#    for:
-#      seconds: 1
-#action:
-#  - service: notify.mobile_app_christians_iphone
-#    data:
-#      title: "Device offline!"
-#      color: red
-#      message: "📵 {{ state_attr(trigger.to_state.entity_id, 'friendly_name') }} has been offline for more than 5 minutes!"
+#camera:
+#  - platform: aarlo
+#    ffmpeg_arguments: "-pred 1 -q:v 2"
 
-# Deprecated entries
+#binary_sensor:
+#  - platform: aarlo
+#    monitored_conditions:
+#      - motion
+#      - sound
+#      - ding
+#      - connectivity
+#media_player:
+#  - platform: aarlo
 
-# tibber:
-#  access_token: !secret tibber_access_token
+# BKK Nettleie
+# Energiledd øre/kWh	Dag (06-22)	Natt og helg/helligdag
+# Januar-mars	        47,38	      35,58
+# April-desember	    55,73	      43,93
+template:
+  - sensor:
+      - unique_id: 0a65dbd0-dc0b-463e-924c-765e32a08266
+        name: "Nettleie BKK"
+        unit_of_measurement: "NOK/kWh"
+        icon: mdi:currency-usd
+        state: >
+          {% if now().hour >=6 and now().hour < 23 %}
+            0.5573
+          {%else%}
+            0.4398
+          {% endif %}
 
-# pi_hole:
-#  - host: !secret pi_hole_host
-
-# verisure:
-#  username: !secret verisure_username
-#  password: !secret verisure_password
-
-# TODO: Notify on Low Battery
+battery_notes:
