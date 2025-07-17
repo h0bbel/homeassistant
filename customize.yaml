@@ -33,9 +33,27 @@ device_tracker.living_room_ap:
   icon: mdi:access-point
 device_tracker.tenant_ap:
   icon: mdi:access-point
-device_tracker.gateway:
-  icon: mdi:router-network
 device_tracker.poe_switch:
+  icon: mdi:switch
+device_tracker.usw_lite_16_poe:
   icon: mdi:switch
 switch.bird_lamp:
   socket: "true"
+
+sensor.bar_ap_status:
+  icon: mdi:access-point
+sensor.julie_ap_status:
+  icon: mdi:access-point
+sensor.office_ap_status:
+  icon: mdi:access-point
+sensor.living_room_ap_status:
+  icon: mdi:access-point
+sensor.tenant_ap_status:
+  icon: mdi:access-point
+sensor.gateway_status:
+  icon: mdi:router-network
+sensor.poe_status:
+  icon: mdi:switch
+
+device_tracker.scenic_location:
+  entity_picture: /local/scenic.jpg
