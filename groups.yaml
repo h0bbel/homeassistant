@@ -3,24 +3,36 @@ living_room_switches:
   entities:
     - switch.bird_lamp
     - switch.bulb_lamp
-    - switch.bulb_lamp_2
 
 living_room_lamps:
   name: Living Room Lamps
   entities:
     - light.left_window_new
     - light.right_window_new
-    - light.living_room_lamp
+    - light.living_room_bulb_1_tradfri
+    - light.hue_filament_bulb_3_living_room
+    - light.tradfri_driver_idanas_cabinet
+
+hue_living_room_lamps:
+  name: Hue Living Room Lamps
+  entities:
+    - light.dining
+    - light.hallway
+    - light.hue_being_ceiling_1
 
 outdoor_lamps:
   name: Outdoor Lamps
   entities:
     - light.bottom_left_front
     - light.top_left_front
-    - light.bottom_right_front
-    - light.top_right_front
+    - light.front_outside_right_top
+    - light.front_outside_right_bottom
     - light.outside_back_left
     - light.outside_back_right
+    - light.back_bottom_left
+    - light.back_top_left
+    - light.back_bottom_right
+    - light.back_top_right
 
 basement_motion_sensors:
   - binary_sensor.bar_sensor_downstairs_motion
@@ -31,5 +43,25 @@ basement_lights:
   - light.bar_hue_ambiance_ceiling
   - light.bar_lightstrip
   - light.tv_lightstrip_plus_1
-  - light.tradfri_bulb_6
-  - light.tradfri_bulb_7
+  - light.0x90fd9ffffe0fd3f8
+  - light.hue_go_1
+  - light.hue_go_2
+  - light.hue_filament_bulb_2
+
+# Used in Node-Red Motion flow
+bar_group:
+  - light.bar_hue_ambiance_ceiling
+  - light.bar_lightstrip
+  - light.tv_lightstrip_plus_1
+  - light.hue_go_1
+  - light.hue_go_2
+  - switch.tradfri_socket_bar
+  - light.hue_filament_bulb_2
+
+bar_led:
+  - light.bar_lightstrip
+  - light.tv_lightstrip_plus_1
+
+bar_go:
+  - light.hue_go_1
+  - light.hue_go_2
