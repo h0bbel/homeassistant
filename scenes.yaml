@@ -123,30 +123,6 @@
       min_mireds: 153
       state: 'off'
       supported_features: 63
-- id: '1592932796904'
-  name: TV Bar Lounge
-  entities:
-    light.tradfri_bulb_6:
-      friendly_name: Bar Lounge Bulb 2
-      state: 'off'
-      supported_features: 33
-    light.tradfri_bulb_7:
-      friendly_name: Bar Lounge Bulb 1
-      state: 'off'
-      supported_features: 33
-    media_player.chromecast_bar:
-      friendly_name: Living Room Chromecast
-      state: 'off'
-      supported_features: 21389
-    media_player.samsung_42:
-      device_class: tv
-      friendly_name: Samsung 42
-      is_volume_muted: false
-      source_list:
-      - TV
-      - HDMI
-      state: 'on'
-      supported_features: 20281
 - id: '1602243828525'
   name: LFC Matchday
   entities:
@@ -281,3 +257,109 @@
       supported_features: 63
       state: 'on'
   icon: mdi:soccer
+- id: '1635328671928'
+  name: Office Scene
+  entities:
+    light.hue_go_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 255
+      hs_color:
+      - 226.596
+      - 73.725
+      rgb_color:
+      - 67
+      - 109
+      - 255
+      xy_color:
+      - 0.161
+      - 0.12
+      effect: none
+      friendly_name: Hue go 1
+      supported_features: 63
+      state: 'on'
+    light.hue_go_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 255
+      hs_color:
+      - 10.824
+      - 100
+      rgb_color:
+      - 255
+      - 46
+      - 0
+      xy_color:
+      - 0.687
+      - 0.311
+      effect: none
+      friendly_name: Hue go 2
+      supported_features: 63
+      state: 'on'
+- id: '1635328748624'
+  name: office scene
+  entities:
+    light.hue_go_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 255
+      hs_color:
+      - 226.557
+      - 71.765
+      rgb_color:
+      - 71
+      - 113
+      - 255
+      xy_color:
+      - 0.163
+      - 0.125
+      effect: none
+      friendly_name: Hue go 1
+      supported_features: 63
+      state: 'on'
+    light.hue_go_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 255
+      hs_color:
+      - 12
+      - 100
+      rgb_color:
+      - 255
+      - 50
+      - 0
+      xy_color:
+      - 0.685
+      - 0.312
+      effect: none
+      friendly_name: Hue go 2
+      supported_features: 63
+      state: 'on'
