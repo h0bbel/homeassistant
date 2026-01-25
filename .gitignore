@@ -1,18 +1,48 @@
-# Example .gitignore file for your config dir.
-# An * ensures that everything will be ignored.
+# --- Ignore everything by default ---
 *
 
-# You can whitelist files/folders with !, these will not be ignored.
+# --- Track YAML configs, Markdown docs, and Git itself ---
 !*.yaml
-!.gitignore
 !*.md
+!.gitignore
 
-# Ignore folders.
-.storage
-.cloud
-.google.token
+# --- Ignore runtime / storage folders ---
+.storage/
+.cloud/
+.google.token/
+.home-assistant_v2.db
+*.db-shm
+*.db-wal
+home-assistant.log
+.core.config_entries.log
 
-# Ensure these YAML files are ignored, otherwise your secret data/credentials will leak.
-ip_bans.yaml
+# --- Ignore secrets and sensitive files ---
 secrets.yaml
+ip_bans.yaml
 known_devices.yaml
+*.key
+*.pem
+
+# --- Ignore Python cache if you run scripts/add-ons ---
+__pycache__/
+*.pyc
+*.pyo
+
+# --- Ignore OS-specific files ---
+.DS_Store
+Thumbs.db
+
+# --- Ignore custom media / downloads (optional, if you store locally) ---
+www/cameras/
+www/media/
+
+# --- Keep custom folders tracked ---
+!custom/
+!templates/
+!www/
+
+# --- Node/JS add-ons (optional) ---
+node_modules/
+dist/
+*.egg-info/
+*.egg
