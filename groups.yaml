@@ -10,7 +10,7 @@ living_room_lamps:
     - light.left_window_new
     - light.right_window_new
     - light.living_room_bulb_1_tradfri
-    - light.hue_filament_bulb_1_living_room
+    - light.hue_filament_bulb_3_living_room
     - light.tradfri_driver_idanas_cabinet
 
 hue_living_room_lamps:
@@ -48,7 +48,7 @@ basement_lights:
   - light.hue_go_2
   - light.hue_filament_bulb_2
 
-# Used on Node-Red Motion flow
+# Used in Node-Red Motion flow
 bar_group:
   - light.bar_hue_ambiance_ceiling
   - light.bar_lightstrip

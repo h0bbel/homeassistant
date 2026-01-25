@@ -123,30 +123,6 @@
       min_mireds: 153
       state: 'off'
       supported_features: 63
-- id: '1592932796904'
-  name: TV Bar Lounge
-  entities:
-    light.tradfri_bulb_6:
-      friendly_name: Bar Lounge Bulb 2
-      state: 'off'
-      supported_features: 33
-    light.tradfri_bulb_7:
-      friendly_name: Bar Lounge Bulb 1
-      state: 'off'
-      supported_features: 33
-    media_player.chromecast_bar:
-      friendly_name: Living Room Chromecast
-      state: 'off'
-      supported_features: 21389
-    media_player.samsung_42:
-      device_class: tv
-      friendly_name: Samsung 42
-      is_volume_muted: false
-      source_list:
-      - TV
-      - HDMI
-      state: 'on'
-      supported_features: 20281
 - id: '1602243828525'
   name: LFC Matchday
   entities:

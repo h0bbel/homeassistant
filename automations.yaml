@@ -1,30 +1,13 @@
-- id: '1618902213502'
-  alias: Toggle Cloud Light
-  description: ''
-  trigger:
-  - platform: webhook
-    webhook_id: '100'
-    allowed_methods:
-    - POST
-    - PUT
-    local_only: true
-  condition: []
-  action:
-  - type: toggle
-    device_id: 62f13da49d37122422a99fd9a0672db8
-    entity_id: switch.verisure_switch
-    domain: switch
-  mode: single
 - id: '1624346947824'
   alias: Restore Samba Backup sensor on startup
-  trigger:
+  triggers:
   - event: start
-    platform: homeassistant
-  action:
-  - service: hassio.addon_stdin
-    data:
+    trigger: homeassistant
+  actions:
+  - data:
       addon: 15d21743_samba_backup
       input: restore-sensor
+    action: hassio.addon_stdin
   mode: single
 - id: '1674202038324'
   alias: Low battery level detection & notification for all battery sensors
@@ -44,28 +27,27 @@
 - id: '1679658995046'
   alias: Mount Synology
   description: ''
-  trigger:
-  - platform: homeassistant
-    event: start
-  condition: []
-  action:
-  - service: shell_command.mount_syn_folder
-    data: {}
+  triggers:
+  - event: start
+    trigger: homeassistant
+  conditions: []
+  actions:
+  - data: {}
+    action: shell_command.mount_syn_folder
   mode: single
 - id: '1701207225668'
   alias: Cloud Lightning
   description: ''
-  trigger:
-  - platform: webhook
-    allowed_methods:
+  triggers:
+  - allowed_methods:
     - POST
     - PUT
     local_only: true
     webhook_id: storm
-  condition: []
-  action:
-  - service: light.turn_on
-    target:
+    trigger: webhook
+  conditions: []
+  actions:
+  - target:
       entity_id: []
       device_id:
       - f2253fe283ebeeb725aac76887945f22
@@ -76,21 +58,21 @@
       - 255
       - 255
       - 255
+    action: light.turn_on
   mode: single
 - id: '1701345981099'
   alias: Cloud Red
   description: ''
-  trigger:
-  - platform: webhook
-    allowed_methods:
+  triggers:
+  - allowed_methods:
     - POST
     - PUT
     local_only: true
     webhook_id: cloud-red
-  condition: []
-  action:
-  - service: light.turn_on
-    target:
+    trigger: webhook
+  conditions: []
+  actions:
+  - target:
       entity_id: []
       device_id:
       - f2253fe283ebeeb725aac76887945f22
@@ -101,21 +83,21 @@
       - 0
       - 0
       effect: Solid
+    action: light.turn_on
   mode: single
 - id: '1701346249652'
   alias: Cloud Blue
   description: ''
-  trigger:
-  - platform: webhook
-    allowed_methods:
+  triggers:
+  - allowed_methods:
     - POST
     - PUT
     local_only: true
     webhook_id: cloud-blue
-  condition: []
-  action:
-  - service: light.turn_on
-    target:
+    trigger: webhook
+  conditions: []
+  actions:
+  - target:
       entity_id: []
       device_id:
       - f2253fe283ebeeb725aac76887945f22
@@ -126,21 +108,21 @@
       - 0
       - 76
       - 255
+    action: light.turn_on
   mode: single
 - id: '1701346601362'
   alias: Cloud White
   description: ''
-  trigger:
-  - platform: webhook
-    allowed_methods:
+  triggers:
+  - allowed_methods:
     - POST
     - PUT
     local_only: true
     webhook_id: cloud-white
-  condition: []
-  action:
-  - service: light.toggle
-    target:
+    trigger: webhook
+  conditions: []
+  actions:
+  - target:
       entity_id: []
       device_id:
       - f2253fe283ebeeb725aac76887945f22
@@ -151,6 +133,7 @@
       - 245
       - 245
       effect: Solid
+    action: light.toggle
   mode: single
 - id: '1707217786984'
   alias: Update notifications
@@ -168,59 +151,58 @@
 - id: '1716884266375'
   alias: Doorbell Video Livingroom Nest
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - input_button.doorbell_virtual_button
-  condition: []
-  action:
-  - service: camera.play_stream
-    metadata: {}
+    trigger: state
+  conditions: []
+  actions:
+  - metadata: {}
     data:
-      format: hls
-      media_player: media_player.living_room_2
+      media_player: media_player.travel_apple_tv
     target:
       entity_id: camera.aarlo_doorbell
+    action: camera.play_stream
   mode: single
 - id: '1718956792328'
   alias: UPS Unavailable Notification
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.ups_battery_charge
+  triggers:
+  - entity_id:
+    - sensor.ups_battery_charge_2
     from:
     to: unavailable
     for:
       hours: 0
       minutes: 1
       seconds: 0
-  condition: []
-  action:
-  - service: notify.mobile_app_christians_iphone_2
-    data:
+    trigger: state
+  conditions: []
+  actions:
+  - data:
       message: "UPS Offline again \U0001FAAB"
       title: UPS Event
+    action: notify.mobile_app_christians_iphone_2
   mode: single
 - id: '1718979526238'
   alias: UPS Online Notification
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.ups_status
+  triggers:
+  - entity_id:
+    - sensor.ups_status_2
     from: unavailable
     to:
     for:
       hours: 0
       minutes: 1
       seconds: 0
-  condition: []
-  action:
-  - service: notify.mobile_app_christians_iphone_2
-    data:
+    trigger: state
+  conditions: []
+  actions:
+  - data:
       message: "\U0001F50B UPS Online again "
       title: UPS Event
+    action: notify.mobile_app_christians_iphone_2
   mode: single
 - id: '1732448687057'
   alias: Gym Lights On/Off
@@ -324,4 +306,199 @@
     metadata: {}
     data:
       message: Tag scanned
+  mode: single
+- id: '1741349261358'
+  alias: Aqara Button 1 Office Lights
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: 84fa896a2a4671844bab358bbc3df444
+    type: action
+    subtype: single
+    trigger: device
+    id: aqara-button-1-single
+  - domain: mqtt
+    device_id: 84fa896a2a4671844bab358bbc3df444
+    type: action
+    subtype: double
+    trigger: device
+    id: aqara-button-1-double
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - aqara-button-1-single
+      sequence:
+      - action: light.toggle
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - light.left_elgato_key_light_air
+          - light.right_elgato_keylight_air
+      - choose: []
+    - conditions:
+      - condition: trigger
+        id:
+        - aqara-button-1-double
+      sequence:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 100
+        target:
+          area_id: 55918db61e274c7898dd524589cff500
+        enabled: false
+      - action: light.toggle
+        metadata: {}
+        data:
+          color_name: azure
+          effect: Chase Flash Rnd
+          brightness_pct: 30
+        target:
+          device_id: f2253fe283ebeeb725aac76887945f22
+  mode: single
+- id: '1745064572661'
+  alias: Remind to Set Starting Odometer
+  description: Sends a reminder every April 7th to update the odometer starting value.
+  triggers:
+  - at: 09:00:00
+    trigger: time
+  conditions:
+  - condition: template
+    value_template: '{{ now().month == 4 and now().day == 7 }}'
+  actions:
+  - data:
+      title: Update Car Odometer
+      message: Don't forget to set the starting odometer for the new year!
+      data:
+        clickAction: /lovelace/car
+    action: notify.mobile_app_christians_iphone_2
+  mode: single
+- id: '1745064660740'
+  alias: Auto-set Starting Odometer on April 7
+  description: Sets input_number.starting_odometer_april_7 from sensor.scenic_mileage
+    every April 7 at 00:01.
+  triggers:
+  - at: 00:01:00
+    trigger: time
+  conditions:
+  - condition: template
+    value_template: '{{ now().month == 4 and now().day == 7 }}'
+  actions:
+  - data:
+      entity_id: input_number.starting_odometer_april_7
+      value: '{{ states(''sensor.scenic_mileage'') | float(0) }}
+
+        '
+    action: input_number.set_value
+  mode: single
+- id: '1746096341274'
+  alias: Cooktop on - Lights on
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.cooktop_power
+    from: 'off'
+    to: 'on'
+  conditions: []
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      device_id:
+      - c2df77741be7400dbd6e4483bdc60b57
+      - 73a326af70cdcabb55111e83863debe8
+  mode: single
+- id: '1758441743922'
+  alias: Turn off Away Mode if Door Unlocked
+  description: ''
+  triggers:
+  - device_id: 9f62547d48e91fa861a2c4d191713a2f
+    domain: lock
+    entity_id: 863de24c46a11bfd6e38cba5f4f74897
+    type: unlocked
+    trigger: device
+  conditions:
+  - condition: state
+    entity_id: input_boolean.away_mode
+    state: 'on'
+  actions:
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.away_mode
+  mode: single
+- id: '1762257716179'
+  alias: Gym Motion Light
+  description: ''
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      motion_entity: binary_sensor.gym_motion_sensor_occupancy
+      no_motion_wait: 600
+      light_target:
+        area_id: gym
+- id: '1764579321923'
+  alias: Alert Aircon Filter Livingroom
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.living_room_filter_clean_required
+    from:
+    to:
+    - 'on'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  conditions: []
+  actions:
+  - action: notify.mobile_app_christians_iphone_2
+    metadata: {}
+    data:
+      message: Clean Aircon filter
+      title: 'House:'
+  mode: single
+- id: '1765629245727'
+  alias: Away mode On -> Ice Cube Maker Off
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_boolean.away_mode
+    from:
+    - 'off'
+    to:
+    - 'on'
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    target:
+      entity_id: switch.refrigerator_ice_maker
+    data: {}
+  mode: single
+- id: '1765629437487'
+  alias: Away Mode Off -> Ice Cube Maker On
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_boolean.away_mode
+    to:
+    - 'off'
+  conditions: []
+  actions:
+  - action: switch.turn_on
+    metadata: {}
+    target:
+      entity_id: switch.refrigerator_ice_maker
+    data: {}
   mode: single
