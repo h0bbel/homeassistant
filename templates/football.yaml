@@ -1,0 +1,34 @@
+trigger:
+  - platform: time_pattern
+    hours: "/1"
+
+sensor:
+  - name: "Next Brann Fixture"
+    state: >
+      {% set cal = states.calendar.terminliste_brann %}
+      {% if cal and cal.attributes.start_time %}
+        {% set start_ts = as_timestamp(cal.attributes.start_time) %}
+        {% set now_ts = now().timestamp() %}
+        {% set diff = start_ts - now_ts %}
+        {% set days = (diff // 86400) | int %}
+        {% set kickoff = start_ts | timestamp_custom('%H:%M') %}
+
+        {% if days < 0 %}
+          {{ cal.attributes.message }} (started)
+        {% elif days == 0 %}
+          {% set hours = (diff // 3600) | int %}
+          {{ cal.attributes.message }} {{ kickoff }} (in {{ hours }}h)
+        {% elif days == 1 %}
+          {{ cal.attributes.message }} {{ kickoff }} (tomorrow)
+        {% else %}
+          {{ cal.attributes.message }} {{ kickoff }} (in {{ days }} days)
+        {% endif %}
+      {% else %}
+        Unknown
+      {% endif %}
+    attributes:
+      start_time: "{{ cal.attributes.start_time if cal else none }}"
+      end_time: "{{ cal.attributes.end_time if cal else none }}"
+      location: "{{ cal.attributes.location if cal else none }}"
+      description: "{{ cal.attributes.description if cal else none }}"
+      all_day: "{{ cal.attributes.all_day if cal else none }}"

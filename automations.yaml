@@ -148,22 +148,6 @@
       - update.home_assistant_supervisor_update
       mobile_app_device_2: d6f5bb00c6bd80e6f8447e4fe02bf809
       run_config_check: true
-- id: '1716884266375'
-  alias: Doorbell Video Livingroom Nest
-  description: ''
-  triggers:
-  - entity_id:
-    - input_button.doorbell_virtual_button
-    trigger: state
-  conditions: []
-  actions:
-  - metadata: {}
-    data:
-      media_player: media_player.travel_apple_tv
-    target:
-      entity_id: camera.aarlo_doorbell
-    action: camera.play_stream
-  mode: single
 - id: '1718956792328'
   alias: UPS Unavailable Notification
   description: ''
@@ -360,41 +344,6 @@
         target:
           device_id: f2253fe283ebeeb725aac76887945f22
   mode: single
-- id: '1745064572661'
-  alias: Remind to Set Starting Odometer
-  description: Sends a reminder every April 7th to update the odometer starting value.
-  triggers:
-  - at: 09:00:00
-    trigger: time
-  conditions:
-  - condition: template
-    value_template: '{{ now().month == 4 and now().day == 7 }}'
-  actions:
-  - data:
-      title: Update Car Odometer
-      message: Don't forget to set the starting odometer for the new year!
-      data:
-        clickAction: /lovelace/car
-    action: notify.mobile_app_christians_iphone_2
-  mode: single
-- id: '1745064660740'
-  alias: Auto-set Starting Odometer on April 7
-  description: Sets input_number.starting_odometer_april_7 from sensor.scenic_mileage
-    every April 7 at 00:01.
-  triggers:
-  - at: 00:01:00
-    trigger: time
-  conditions:
-  - condition: template
-    value_template: '{{ now().month == 4 and now().day == 7 }}'
-  actions:
-  - data:
-      entity_id: input_number.starting_odometer_april_7
-      value: '{{ states(''sensor.scenic_mileage'') | float(0) }}
-
-        '
-    action: input_number.set_value
-  mode: single
 - id: '1746096341274'
   alias: Cooktop on - Lights on
   description: ''
@@ -464,7 +413,7 @@
     metadata: {}
     data:
       message: Clean Aircon filter
-      title: 'House:'
+      title: "\U0001F3DA️ House Task:"
   mode: single
 - id: '1765629245727'
   alias: Away mode On -> Ice Cube Maker Off
@@ -502,3 +451,156 @@
       entity_id: switch.refrigerator_ice_maker
     data: {}
   mode: single
+- id: '1769544929851'
+  alias: Ikea_bilresa_scroll_wheel
+  description: ''
+  use_blueprint:
+    path: jhol-byte/Ikea_bilresa_scroll_wheel.yaml
+    input:
+      remote: c5cf336be4126ec4ba7c83b13786fb48
+      click_action_ch1:
+      - action: light.toggle
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.kitchen_counter_lights
+      scroll_wheel_target_ch1:
+      - light.kitchen_counter_lights
+      scroll_wheel_mode_ext_ch1: relaxed
+- id: '1770135546260'
+  alias: Scenic HVAC
+  description: ''
+  triggers:
+  - trigger: webhook
+    allowed_methods:
+    - HEAD
+    - GET
+    local_only: false
+    webhook_id: scenic-ac
+  conditions: []
+  actions:
+  - action: renault.ac_start
+    metadata: {}
+    data:
+      vehicle: b1c866f469a582c5ab78e186acf0cadc
+      temperature: 21
+  mode: single
+- id: '1771747053961'
+  alias: 'Alert: Car connected to Easee, update SOC'
+  description: ''
+  triggers:
+  - type: plugged_in
+    device_id: ed7235a0422718424e26846ade1fce2a
+    entity_id: 7a737d08e718eacfd04cb0cf2d8f7e9c
+    domain: binary_sensor
+    trigger: device
+  conditions: []
+  actions:
+  - action: notify.mobile_app_christians_iphone_2
+    metadata: {}
+    data:
+      message: 'Current SOC: {{ states(''sensor.scenic_battery'') }} update Tibber!'
+      title: "\U0001F699 Car connected:"
+  mode: single
+- id: '1772791565398'
+  alias: House Calendar Alerts
+  description: ''
+  triggers:
+  - trigger: calendar.event_started
+    target:
+      entity_id: calendar.house_tasks
+    options:
+      offset:
+        hours: 0
+        minutes: 0
+        seconds: 0
+        days: 0
+      offset_type: before
+  conditions: []
+  actions:
+  - action: notify.mobile_app_christians_iphone_2
+    metadata: {}
+    data:
+      title: "\U0001F3DA️ House Task:"
+      message: '{{ trigger.calendar_event.summary }}'
+  mode: single
+- id: '1772872632174'
+  alias: Brann Match Start
+  description: ''
+  triggers:
+  - trigger: calendar.event_started
+    target:
+      entity_id: calendar.terminliste_brann
+    options:
+      offset:
+        hours: 0
+        minutes: 5
+        seconds: 0
+        days: 0
+      offset_type: before
+  conditions: []
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    target:
+      entity_id: light.hallway
+    data:
+      rgb_color:
+      - 209
+      - 17
+      - 28
+      brightness_pct: 100
+  - action: notify.mobile_app_christians_iphone_2
+    metadata: {}
+    data:
+      title: '⚽️ Brann Match: {{ trigger.calendar_event.summary | default(''Calendar
+        Event'') }}'
+      message: '{{ trigger.calendar_event.description | default(''Calendar Event'')
+        }}'
+  mode: single
+- id: '1772873063455'
+  alias: 'Match Start: LFC'
+  description: ''
+  triggers:
+  - trigger: calendar.event_started
+    target:
+      entity_id: calendar.liverpool
+    options:
+      offset:
+        hours: 0
+        minutes: 5
+        seconds: 0
+        days: 0
+      offset_type: before
+  conditions: []
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    target:
+      entity_id: light.hallway
+    data:
+      rgb_color:
+      - 208
+      - 0
+      - 39
+      brightness_pct: 100
+  - action: notify.mobile_app_christians_iphone_2
+    metadata: {}
+    data:
+      title: '⚽️ Liverpool Match: {{ trigger.calendar_event.summary | default(''Calendar
+        Event'')  }}'
+      message: '{{ trigger.calendar_event.description | default(''Calendar Event'')
+        }}'
+  mode: single
+- id: '1772874499845'
+  alias: "\U0001F697 Vehicle Charging Reminder"
+  description: ''
+  use_blueprint:
+    path: stumiles86/VehicleChargingReminder.yaml
+    input:
+      battery_sensor: sensor.scenic_e_tech_state_of_charge
+      vehicle_tracker: device_tracker.scenic_location
+      charger_sensor: binary_sensor.easee_e_plug
+      battery_threshold: 20
+      notify_device: d6f5bb00c6bd80e6f8447e4fe02bf809
+      reminder_time: '20:00:00'

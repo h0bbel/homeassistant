@@ -41,10 +41,6 @@ scene: !include scenes.yaml
 shell_command:
   mount_syn_folder: "mount -t cifs -o vers=3.0,noserverino,username=ha,password=fr3Kecap,domain=WORKGROUP //192.168.5.32/Files /media/nasfiles"
 
-# Example Todoist setup
-#calendar:
-#  - platform: todoist
-#    token: 56138679ac679b9f1a88c68d553ba58f756b03e6
 
 sensor:
   #  - platform: aarlo #arlo
@@ -120,19 +116,6 @@ sensor:
       - sensor.stue_humidity
       - sensor.sensibo_livingroom_humidity
       - sensor.bar_smoke_detector_humidity
-
-  - platform: energyscore
-    name: Heater Energy Score
-    unique_id: AC816DB0-868A-431C-92AE-CBD46A864DC5
-    price_entity: sensor.electricity_price_bjornevegen_38_b
-    energy_entity: sensor.last_meter_consumption_bjornevegen_38_b
-
-  - platform: energyscore
-
-    name: Easee Energy Score
-    unique_id: BC816DB0-868A-431C-92AE-CBD46A864DC5
-    price_entity: sensor.electricity_price_bjornevegen_38_b
-    energy_entity: sensor.easee_e_lifetime_energy
 
 air_quality:
   - platform: norway_air
