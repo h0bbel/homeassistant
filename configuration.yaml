@@ -41,7 +41,6 @@ scene: !include scenes.yaml
 shell_command:
   mount_syn_folder: "mount -t cifs -o vers=3.0,noserverino,username=ha,password=fr3Kecap,domain=WORKGROUP //192.168.5.32/Files /media/nasfiles"
 
-
 sensor:
   #  - platform: aarlo #arlo
   #    monitored_conditions:
@@ -62,18 +61,18 @@ sensor:
     monitored_users:
       - h0bbel
 
-  - platform: rest
-    resource: https://dmz1.vninja.com/api/v1/stats/aggregate?site_id=vninja.net&period=day
-    value_template: "{{ value_json.results.visitors.value }}"
-    headers:
-      Authorization: !secret plausible_token
-    name: plausibletoday
+  #- platform: rest
+  #  resource: https://dmz1.vninja.com/api/v1/stats/aggregate?site_id=vninja.net&period=day
+  #  value_template: "{{ value_json.results.visitors.value }}"
+  #  headers:
+  #    Authorization: !secret plausible_token
+  #  name: plausibletoday
 
-  - platform: rest
-    resource: https://dmz1.vninja.com/api/v1/stats/realtime/visitors?site_id=vninja.net
-    headers:
-      Authorization: !secret plausible_token
-    name: plausiblerealtime
+  #- platform: rest
+  #  resource: https://dmz1.vninja.com/api/v1/stats/realtime/visitors?site_id=vninja.net
+  #  headers:
+  #    Authorization: !secret plausible_token
+  #  name: plausiblerealtime
 
   - platform: time_date
     display_options:
@@ -179,9 +178,9 @@ ios:
         icon: mdi:party-popper
         color: "ffffff"
 
-tibber_data:
-  email: !secret tibber_email
-  password: !secret tibber_password
+#tibber_data:
+#  email: !secret tibber_email
+#  password: !secret tibber_password
 
 #aarlo:
 #  mqtt_hostname_check: False
