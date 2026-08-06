@@ -49,9 +49,8 @@
   actions:
   - target:
       entity_id: []
-      device_id:
-      - f2253fe283ebeeb725aac76887945f22
       area_id: []
+      device_id: df9e884d00ca7d4dfe95008ce6163a13
     data:
       effect: Lightning
       rgb_color:
@@ -74,9 +73,8 @@
   actions:
   - target:
       entity_id: []
-      device_id:
-      - f2253fe283ebeeb725aac76887945f22
       area_id: []
+      device_id: df9e884d00ca7d4dfe95008ce6163a13
     data:
       rgb_color:
       - 255
@@ -99,9 +97,8 @@
   actions:
   - target:
       entity_id: []
-      device_id:
-      - f2253fe283ebeeb725aac76887945f22
       area_id: []
+      device_id: df9e884d00ca7d4dfe95008ce6163a13
     data:
       effect: Solid
       rgb_color:
@@ -124,9 +121,8 @@
   actions:
   - target:
       entity_id: []
-      device_id:
-      - f2253fe283ebeeb725aac76887945f22
       area_id: []
+      device_id: df9e884d00ca7d4dfe95008ce6163a13
     data:
       rgb_color:
       - 245
@@ -342,7 +338,7 @@
           effect: Chase Flash Rnd
           brightness_pct: 30
         target:
-          device_id: f2253fe283ebeeb725aac76887945f22
+          device_id: df9e884d00ca7d4dfe95008ce6163a13
   mode: single
 - id: '1746096341274'
   alias: Cooktop on - Lights on

@@ -29,6 +29,12 @@ homeassistant:
         - 192.168.60.175/32
     - type: homeassistant
 
+#http:
+#  use_x_forwarded_for: true
+#  trusted_proxies:
+#    - 172.30.33.0/24
+#    - 127.0.0.1
+
 image_upload:
 
 group: !include groups.yaml
@@ -204,13 +210,26 @@ template:
       - unique_id: 0a65dbd0-dc0b-463e-924c-765e32a08266
         name: "Nettleie BKK"
         unit_of_measurement: "NOK/kWh"
+        device_class: monetary
+        state_class: measurement
         icon: mdi:currency-usd
         state: >
-          {% if now().hour >=6 and now().hour < 23 %}
-            0.5573
-          {%else%}
-            0.4398
+          {% set month = now().month %}
+          {% set hour = now().hour %}
+          {% set weekend = now().weekday() >= 5 %}
+          {% set day_hours = hour >= 6 and hour < 22 and not weekend %}
+          {% if month <= 3 %}
+            {{ 0.4738 if day_hours else 0.3558 }}
+          {% else %}
+            {{ 0.5573 if day_hours else 0.4393 }}
           {% endif %}
+
+  - sensor:
+      - name: "UPS Runtime Remaining"
+        unique_id: ups_runtime_remaining
+        icon: mdi:battery-clock
+        state: "{{ (states('sensor.ups_battery_runtime_2') | int / 60) | round(0) }}"
+        unit_of_measurement: "min"
 
   - sensor:
       - name: Brume 3 (MT-5000)
