@@ -29,7 +29,7 @@ homeassistant:
         - 192.168.60.175/32
     - type: homeassistant
   internal_url: "http://192.168.31.30:8123"
-  
+
 #http:
 #  use_x_forwarded_for: true
 #  trusted_proxies:
@@ -205,24 +205,21 @@ ios:
 
 template:
   - !include templates/bir.yaml
+  - !include templates/scenic_trips.yaml
 
   - sensor:
       - unique_id: 0a65dbd0-dc0b-463e-924c-765e32a08266
         name: "Nettleie BKK"
         unit_of_measurement: "NOK/kWh"
-        device_class: monetary
         state_class: measurement
         icon: mdi:currency-usd
+        # BKK private customers, from 01.01.2026, incl. VAT, Enova and electricity tax.
+        # Day: Mon-Fri 06-22. Night/weekend/public holiday: all other hours.
         state: >
-          {% set month = now().month %}
           {% set hour = now().hour %}
-          {% set weekend = now().weekday() >= 5 %}
-          {% set day_hours = hour >= 6 and hour < 22 and not weekend %}
-          {% if month <= 3 %}
-            {{ 0.4738 if day_hours else 0.3558 }}
-          {% else %}
-            {{ 0.5573 if day_hours else 0.4393 }}
-          {% endif %}
+          {% set wd = states('binary_sensor.workday_sensor_no') %}
+          {% set workday = (wd == 'on') if wd in ['on', 'off'] else now().weekday() < 5 %}
+          {{ 0.4613 if (hour >= 6 and hour < 22 and workday) else 0.2329 }}
 
   - sensor:
       - name: "UPS Runtime Remaining"

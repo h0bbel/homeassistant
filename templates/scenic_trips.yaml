@@ -1,0 +1,21 @@
+triggers:
+  - trigger: event
+    event_type: scenic_trip_logged
+sensor:
+  - name: Scenic trip log
+    unique_id: scenic_trip_log
+    icon: mdi:map-marker-path
+    state: "{{ trigger.event.data.label }}"
+    attributes:
+      trips: >
+        {% set new = {
+          'label': trigger.event.data.label,
+          'km': trigger.event.data.km,
+          'soc_start': trigger.event.data.soc_start,
+          'soc_end': trigger.event.data.soc_end,
+          'kwh': trigger.event.data.kwh,
+          'cons': trigger.event.data.cons
+        } %}
+        {% set old = this.attributes.get('trips', []) %}
+        {% set old = old if (old is sequence and old is not string) else [] %}
+        {{ ([new] + old)[:50] }}
