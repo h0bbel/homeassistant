@@ -28,12 +28,18 @@ homeassistant:
         - 192.168.200.78/32
         - 192.168.60.175/32
     - type: homeassistant
-
+  internal_url: "http://192.168.31.30:8123"
+  
 #http:
 #  use_x_forwarded_for: true
 #  trusted_proxies:
 #    - 172.30.33.0/24
 #    - 127.0.0.1
+
+sonos:
+  media_player:
+    hosts:
+      - 192.168.5.131
 
 image_upload:
 
@@ -73,37 +79,31 @@ sensor:
   #    Authorization: !secret plausible_token
   #  name: plausiblerealtime
 
-  # Custom Average Temperature Sensors
-  - platform: average
-    name: "Stue Avg Temperature"
-    entities:
-      - sensor.netatmo_b38b_b38b_indoor_temperature
-      - sensor.stue_temperature
-      - sensor.sensibo_livingroom_temperature
+  - platform: rest
+    name: PowerOps Phase
+    resource: http://powerops.core.vninja.com/api/status
+    headers:
+      X-PowerOps-Token: !secret powerops_token
+    value_template: "{{ value_json.phase }}"
+    json_attributes:
+      - detectedMode
+      - cephHealth
+      - allowArm
+      - configured
+      - simulate
+    scan_interval: 30
 
-  - platform: average
-    name: "Second Floor Avg Temperature"
-    entities:
-      - sensor.soveromsgang_1_temperature
-      - sensor.soveromsgang_2_temperature
-
-  - platform: average
-    name: "Basement Avg Temperature 2"
-    entities:
-      - sensor.bar_smoke_detector_temperature
-      - sensor.bar_sensor_upstairs_temperature
-      - sensor.bar_sensor_downstairs_temperature
-
-  - platform: average
-    name: "House Avg Humidity"
-    entities:
-      - sensor.netatmo_b38b_b38b_indoor_humidity
-      - sensor.gang_humidity
-      - sensor.soveromsgang_1_humidity
-      - sensor.soveromsgang_2_humidity
-      - sensor.stue_humidity
-      - sensor.sensibo_livingroom_humidity
-      - sensor.bar_smoke_detector_humidity
+  - platform: rest
+    name: PowerOps Shutdown Trigger
+    resource: http://powerops.core.vninja.com/api/settings
+    headers:
+      X-PowerOps-Token: !secret powerops_token
+    value_template: "{{ value_json.auto_shutdown_enabled }}"
+    json_attributes:
+      - on_battery_seconds
+      - low_battery_percent
+      - manual_resume_gate
+    scan_interval: 300
 
 air_quality:
   - platform: norway_air
@@ -240,3 +240,43 @@ template:
           {% else %}
             Disconnected
           {% endif %}
+
+# PowerOps
+
+binary_sensor:
+  - platform: rest
+    name: PowerOps Armed
+    resource: http://powerops.core.vninja.com/api/status
+    headers:
+      X-PowerOps-Token: !secret powerops_token
+    value_template: "{{ value_json.armed }}"
+    scan_interval: 30
+
+  - platform: rest
+    name: PowerOps NUT Connected
+    resource: http://powerops.core.vninja.com/api/status
+    headers:
+      X-PowerOps-Token: !secret powerops_token
+    value_template: "{{ value_json.get('upsError', '') == '' }}"
+    device_class: connectivity
+    scan_interval: 30
+
+  - platform: rest
+    name: PowerOps Proxmox Connected
+    resource: http://powerops.core.vninja.com/api/status
+    headers:
+      X-PowerOps-Token: !secret powerops_token
+    value_template: "{{ value_json.get('resourcesError', '') == '' }}"
+    device_class: connectivity
+    scan_interval: 30
+
+rest_command:
+  cast_livingroom:
+    url: "http://192.168.31.41:8090/cast/livingroom"
+    method: post
+  cast_bar:
+    url: "http://192.168.31.41:8090/cast/bar"
+    method: post
+  cast_bedroom:
+    url: "http://192.168.31.41:8090/cast/bedroom"
+    method: post

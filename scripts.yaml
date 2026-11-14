@@ -107,3 +107,68 @@ light_color_temp_helper:
       name: Mode
       description: Select switch mode
   description: Switch color temperature of light in steps
+night_mode_lights_off:
+  alias: Night Mode Lights Off
+  description: 'Shared action list for entering night mode: turns off the usual evening
+    lights/switches, locks the front door. Called both when input_boolean.night_mode
+    turns on and by the 02:00 auto-enable.'
+  sequence:
+  - action: switch.turn_off
+    target:
+      entity_id: switch.verisure_switch
+  - action: switch.turn_off
+    target:
+      entity_id: group.living_room_switches
+  - action: light.turn_off
+    target:
+      entity_id:
+      - light.left_elgato_key_light_air
+      - light.right_elgato_keylight_air
+  - action: light.turn_off
+    target:
+      entity_id:
+      - light.hue_go_1
+      - light.hue_go_2
+  - action: light.turn_off
+    target:
+      entity_id: light.tradfri_driver_idanas_cabinet
+  - action: light.turn_off
+    target:
+      entity_id: light.night_mode_off
+  - action: light.turn_off
+    target:
+      entity_id: light.kitchen_counter_lights
+  - action: homeassistant.turn_off
+    target:
+      entity_id: group.bar_group
+  - action: lock.lock
+    target:
+      entity_id: lock.inngangsdor
+    data:
+      code: 056805
+spa_temp_up:
+  alias: Spa Temp Up
+  description: Bumps the spa's target temperature up by 0.5°C, clamped to the device's
+    max (40°C). Exists so the Bar Cast dashboard can use a big button instead of the
+    cramped tile stepper.
+  sequence:
+  - action: climate.set_temperature
+    target:
+      entity_id: climate.outside_mspa_mono_heater_control
+    data:
+      temperature: '{{ [state_attr(''climate.outside_mspa_mono_heater_control'', ''temperature'')
+        | float(35) + 0.5, 40] | min }}'
+  mode: single
+spa_temp_down:
+  alias: Spa Temp Down
+  description: Bumps the spa's target temperature down by 0.5°C, clamped to the device's
+    min (20°C). Exists so the Bar Cast dashboard can use a big button instead of the
+    cramped tile stepper.
+  sequence:
+  - action: climate.set_temperature
+    target:
+      entity_id: climate.outside_mspa_mono_heater_control
+    data:
+      temperature: '{{ [state_attr(''climate.outside_mspa_mono_heater_control'', ''temperature'')
+        | float(35) - 0.5, 20] | max }}'
+  mode: single

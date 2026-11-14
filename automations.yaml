@@ -1,14 +1,3 @@
-- id: '1624346947824'
-  alias: Restore Samba Backup sensor on startup
-  triggers:
-  - event: start
-    trigger: homeassistant
-  actions:
-  - data:
-      addon: 15d21743_samba_backup
-      input: restore-sensor
-    action: hassio.addon_stdin
-  mode: single
 - id: '1674202038324'
   alias: Low battery level detection & notification for all battery sensors
   description: ''
@@ -16,10 +5,12 @@
     path: sbyx/low-battery-level-detection-notification-for-all-battery-sensors.yaml
     input:
       actions:
-      - service: notify.mobile_app_christians_iphone_2
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
         data:
+          title: "\U0001F50B Low Battery Warning"
           message: '{{sensors|replace(", ", "\n")}}'
-          title: Low Battery Warning
       threshold: 10
       exclude:
         entity_id:
@@ -159,10 +150,12 @@
     trigger: state
   conditions: []
   actions:
-  - data:
-      message: "UPS Offline again \U0001FAAB"
-      title: UPS Event
-    action: notify.mobile_app_christians_iphone_2
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F6A9 UPS Data Stale"
+      message: Lost USB link to UPS driver — check cable/port, not a power event
   mode: single
 - id: '1718979526238'
   alias: UPS Online Notification
@@ -179,10 +172,12 @@
     trigger: state
   conditions: []
   actions:
-  - data:
-      message: "\U0001F50B UPS Online again "
-      title: UPS Event
-    action: notify.mobile_app_christians_iphone_2
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F50C UPS Reporting Again"
+      message: USB link/driver recovered — data flowing normally
   mode: single
 - id: '1732448687057'
   alias: Gym Lights On/Off
@@ -211,10 +206,11 @@
     trigger: device
   conditions: []
   actions:
-  - device_id: 4704fdcff0f46becf4831e763fbb69bf
-    domain: light
-    entity_id: 793e539428dec2eeb57e0f6604e635f1
-    type: brightness_increase
+  - action: light.turn_on
+    target:
+      entity_id: light.0x90fd9ffffe0fd3f8
+    data:
+      brightness_step_pct: 10
   mode: single
 - id: '1732448942273'
   alias: Gym Brightness Down
@@ -227,31 +223,11 @@
     trigger: device
   conditions: []
   actions:
-  - device_id: 4704fdcff0f46becf4831e763fbb69bf
-    domain: light
-    entity_id: 793e539428dec2eeb57e0f6604e635f1
-    type: brightness_decrease
-  mode: single
-- id: '1733397222540'
-  alias: Varmekabler Bad >30
-  description: ''
-  triggers:
-  - type: temperature
-    device_id: 15becaa5f6aa157b626aa79bf994ac28
-    entity_id: cca94149328324f7953823c061b8d75c
-    domain: sensor
-    trigger: device
-    above: 30
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 0
-  conditions: []
-  actions:
-  - action: notify.notify
-    metadata: {}
+  - action: light.turn_on
+    target:
+      entity_id: light.0x90fd9ffffe0fd3f8
     data:
-      message: Varmekabler bad >30
+      brightness_step_pct: -10
   mode: single
 - id: '1733397276363'
   alias: Varmekabler bad <22
@@ -405,11 +381,12 @@
       seconds: 0
   conditions: []
   actions:
-  - action: notify.mobile_app_christians_iphone_2
-    metadata: {}
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
     data:
+      title: "\U0001F3DA️ House Task"
       message: Clean Aircon filter
-      title: "\U0001F3DA️ House Task:"
   mode: single
 - id: '1765629245727'
   alias: Away mode On -> Ice Cube Maker Off
@@ -427,7 +404,7 @@
   - action: switch.turn_off
     metadata: {}
     target:
-      entity_id: switch.refrigerator_ice_maker
+      entity_id: switch.fridge_ice_maker
     data: {}
   mode: single
 - id: '1765629437487'
@@ -444,7 +421,7 @@
   - action: switch.turn_on
     metadata: {}
     target:
-      entity_id: switch.refrigerator_ice_maker
+      entity_id: switch.fridge_ice_maker
     data: {}
   mode: single
 - id: '1769544929851'
@@ -485,18 +462,22 @@
   alias: 'Alert: Car connected to Easee, update SOC'
   description: ''
   triggers:
-  - type: plugged_in
-    device_id: ed7235a0422718424e26846ade1fce2a
-    entity_id: 7a737d08e718eacfd04cb0cf2d8f7e9c
-    domain: binary_sensor
-    trigger: device
+  - trigger: state
+    entity_id: binary_sensor.easee_e_plug
+    to: 'on'
   conditions: []
   actions:
-  - action: notify.mobile_app_christians_iphone_2
-    metadata: {}
+  - variables:
+      battery: '{{ states(''sensor.scenic_battery'') | int(none) }}'
+      tibber: '{{ states(''sensor.scenic_e_tech_state_of_charge'') }}'
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
     data:
-      message: 'Current SOC: {{ states(''sensor.scenic_battery'') }} update Tibber!'
-      title: "\U0001F699 Car connected:"
+      title: "\U0001F699 Car Connected to Charger"
+      message: '{% if battery is none %}Battery level unavailable. Check the car before
+        updating Tibber.{% else %}Battery at {{ battery }}%. Set Tibber to {{ [battery
+        + 20, 100] | min }}% (it currently has {{ tibber }}%).{% endif %}'
   mode: single
 - id: '1772791565398'
   alias: House Calendar Alerts
@@ -514,10 +495,11 @@
       offset_type: before
   conditions: []
   actions:
-  - action: notify.mobile_app_christians_iphone_2
-    metadata: {}
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
     data:
-      title: "\U0001F3DA️ House Task:"
+      title: "\U0001F3DA️ House Task"
       message: '{{ trigger.calendar_event.summary }}'
   mode: single
 - id: '1772872632174'
@@ -546,8 +528,9 @@
       - 17
       - 28
       brightness_pct: 100
-  - action: notify.mobile_app_christians_iphone_2
-    metadata: {}
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
     data:
       title: '⚽️ Brann Match: {{ trigger.calendar_event.summary | default(''Calendar
         Event'') }}'
@@ -580,13 +563,14 @@
       - 0
       - 39
       brightness_pct: 100
-  - action: notify.mobile_app_christians_iphone_2
-    metadata: {}
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
     data:
       title: '⚽️ Liverpool Match: {{ trigger.calendar_event.summary | default(''Calendar
         Event'')  }}'
-      message: '{{ trigger.calendar_event.description | default(''Calendar Event'')
-        }}'
+      message: Kick-off at {{ trigger.calendar_event.location | default('the match')
+        }}!
   mode: single
 - id: '1772874499845'
   alias: "\U0001F697 Vehicle Charging Reminder"
@@ -600,3 +584,1776 @@
       battery_threshold: 20
       notify_device: d6f5bb00c6bd80e6f8447e4fe02bf809
       reminder_time: '20:00:00'
+- id: '1788091393692'
+  alias: Freezer & Fridge Alerts
+  description: Notify if the freezer or fridge temperature climbs too high, or a door
+    is left open.
+  triggers:
+  - trigger: numeric_state
+    entity_id: sensor.fridge_freezer_temperature
+    above: -12
+    for:
+      minutes: 5
+    id: freezer_temp_high
+  - trigger: numeric_state
+    entity_id: sensor.fridge_temperature
+    above: 8
+    for:
+      minutes: 5
+    id: fridge_temp_high
+  - trigger: state
+    entity_id: binary_sensor.fridge_freezer_door_open
+    to: 'on'
+    for:
+      minutes: 5
+    id: freezer_door_open
+  - trigger: state
+    entity_id: binary_sensor.fridge_door_open
+    to: 'on'
+    for:
+      minutes: 5
+    id: fridge_door_open
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: freezer_temp_high
+      sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F9CA Freezer Warning"
+          message: Freezer temperature is {{ states('sensor.fridge_freezer_temperature')
+            }}°C — above normal for 5+ minutes.
+          data:
+            push:
+              sound:
+                critical: 1
+                name: default
+                volume: 1
+    - conditions:
+      - condition: trigger
+        id: fridge_temp_high
+      sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F976 Fridge Warning"
+          message: Fridge temperature is {{ states('sensor.fridge_temperature') }}°C
+            — above normal for 5+ minutes.
+          data:
+            push:
+              sound:
+                critical: 1
+                name: default
+                volume: 1
+    - conditions:
+      - condition: trigger
+        id: freezer_door_open
+      sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F6AA Freezer Door Open"
+          message: The freezer door has been open for 5+ minutes.
+    - conditions:
+      - condition: trigger
+        id: fridge_door_open
+      sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F6AA Fridge Door Open"
+          message: The fridge door has been open for 5+ minutes.
+  mode: single
+- id: '1788122363351'
+  alias: Waste Collection Reminder
+  description: Notify the evening before each BIR waste collection day which bin to
+    put out
+  triggers:
+  - trigger: calendar
+    entity_id: calendar.bir_matavfall
+    event: start
+    offset: -04:00:00
+    id: matavfall
+  - trigger: calendar
+    entity_id: calendar.bir_papir_og_plast
+    event: start
+    offset: -04:00:00
+    id: papir_plast
+  - trigger: calendar
+    entity_id: calendar.bir_restavfall
+    event: start
+    offset: -04:00:00
+    id: restavfall
+  - trigger: calendar
+    entity_id: calendar.glass_og_metall
+    event: start
+    offset: -04:00:00
+    id: glass_metall
+  conditions: []
+  actions:
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F5D1️ Waste collection tomorrow"
+      message: 'Put out: {{ trigger.calendar_event.summary }}'
+  mode: parallel
+- id: '1788154320330'
+  alias: Namron Thermostat Energy Refresh
+  description: 'Namron Edge Thermostats still do not spontaneously report their energy
+    attribute as of Zigbee2MQTT 2.14.2 (verified 2026-10-02: energy stayed flat for
+    ~1h45m while power showed heating, then jumped as soon as a configure was sent).
+    Force a fresh read every 30 minutes via device configure so the Energy Dashboard
+    does not go stale. The screen_on_time reset that configure used to cause is fixed
+    in 2.14.2 (verified across ~7 consecutive runs), so the old delay + always_on
+    re-apply steps were removed. Covers both the Bathroom and Washroom units.'
+  triggers:
+  - trigger: time_pattern
+    minutes: /30
+  conditions: []
+  actions:
+  - action: mqtt.publish
+    data:
+      topic: zigbee2mqtt/bridge/request/device/configure
+      payload: '{"id": "Namron Edge Thermostat Bathroom"}'
+  - action: mqtt.publish
+    data:
+      topic: zigbee2mqtt/bridge/request/device/configure
+      payload: '{"id": "Namron Edge Thermostat Washroom"}'
+  mode: single
+- id: '1789200612732'
+  alias: Water Heater Turned Off
+  description: ''
+  triggers:
+  - trigger: water_heater.turned_off
+    target:
+      device_id: 3196598ef463c99c4896da99c282b4f7
+    options:
+      behavior: each
+  conditions: []
+  actions:
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F6BF Water Heater"
+      message: Turned Off
+  mode: single
+- id: '1789200683360'
+  alias: Water Heater Turned On
+  description: ''
+  triggers:
+  - trigger: water_heater.turned_on
+    target:
+      device_id: 3196598ef463c99c4896da99c282b4f7
+    options:
+      behavior: each
+  conditions: []
+  actions:
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F6BF Water Heater"
+      message: Turned On
+  mode: single
+- id: '1789204875773'
+  alias: Posten Delivery Reminder
+  description: 'Native replacement for the Node-RED "Posten Delivery" flow: notifies
+    at 14:00 if mail delivery is expected today.'
+  triggers:
+  - trigger: time
+    at: '14:00:00'
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.posten_binary_sensor
+    state: 'on'
+  actions:
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F4EC Posten delivery today"
+      message: Mail is being delivered today
+  mode: single
+- id: '1789205401363'
+  alias: High Temperature Alert
+  description: 'Native replacement for Node-RED''s "High Temperature" flow: office
+    temp above 35°C.'
+  triggers:
+  - trigger: numeric_state
+    entity_id: sensor.esp_sensor01_esp_sensor01_temperature
+    above: 35
+  conditions: []
+  actions:
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F321️ High Temperature — Office"
+      message: '{{ trigger.to_state.state }}°C'
+  mode: single
+- id: '1789205406075'
+  alias: Low Temperature Alert
+  description: 'Native replacement for Node-RED''s "Low Temperature" flow: per-area
+    low temp thresholds.'
+  triggers:
+  - trigger: numeric_state
+    entity_id: sensor.stue_avg_temperature
+    below: 17
+    id: living_room
+  - trigger: numeric_state
+    entity_id: sensor.basement_avg_temperature
+    below: 8
+    id: basement
+  - trigger: numeric_state
+    entity_id: sensor.second_floor_avg_temperature
+    below: 14
+    id: second_floor
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: living_room
+      sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F976 Low Temperature — Living Room"
+          message: '{{ trigger.to_state.state }}°C — check heating'
+    - conditions:
+      - condition: trigger
+        id: basement
+      sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F976 Low Temperature — Basement"
+          message: '{{ trigger.to_state.state }}°C — check heating'
+    - conditions:
+      - condition: trigger
+        id: second_floor
+      sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F976 Low Temperature — Second Floor"
+          message: '{{ trigger.to_state.state }}°C — check heating'
+  mode: parallel
+- id: '1789205408881'
+  alias: Open Door Alert
+  description: 'Native replacement for Node-RED''s "Alert Open Doors" flow: any of
+    5 doors left open over 30 minutes.'
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.stuedor_1
+    - binary_sensor.stuedor_2
+    - binary_sensor.kjellerdor
+    - binary_sensor.ytterdor
+    - binary_sensor.kjokkendor
+    to: 'on'
+    for:
+      minutes: 30
+  conditions: []
+  actions:
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F6AA Door Open"
+      message: '{{ entity_name(trigger.entity_id) }} open for over 30 minutes'
+      data:
+        push:
+          sound:
+            critical: 1
+            name: default
+            volume: 1
+  mode: parallel
+- id: '1789206002960'
+  alias: Water Leak Alert
+  description: 'Native replacement for Node-RED''s "Water Sensors Alerts" flow: critical
+    push notification plus a spoken TTS announcement broadcast to Sonos and the Nest
+    Hub displays.'
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.aqara_water_1_water_leak
+    to: 'on'
+    id: bathroom
+  - trigger: state
+    entity_id: binary_sensor.aqara_water_2_water_leak
+    to: 'on'
+    id: basement
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: bathroom
+      sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F4A7 Water Leak — Bathroom"
+          message: Leak detected — check immediately
+          data:
+            push:
+              sound:
+                name: default
+                critical: 1
+                volume: 1
+      - action: media_player.play_media
+        target:
+          entity_id:
+          - media_player.living_room
+          - media_player.nesthub6398_2
+          - media_player.nesthub876d
+          - media_player.nesthube5f7_3
+        data:
+          media_content_id: media-source://tts/tts.google_translate_en_com?message=Water+leak+detected+in+the+bathroom
+          media_content_type: provider
+          announce: true
+          extra:
+            volume: 60
+    - conditions:
+      - condition: trigger
+        id: basement
+      sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F4A7 Water Leak — Basement"
+          message: Leak detected — check immediately
+          data:
+            push:
+              sound:
+                name: default
+                critical: 1
+                volume: 1
+      - action: media_player.play_media
+        target:
+          entity_id:
+          - media_player.living_room
+          - media_player.nesthub6398_2
+          - media_player.nesthub876d
+          - media_player.nesthube5f7_3
+        data:
+          media_content_id: media-source://tts/tts.google_translate_en_com?message=Water+leak+detected+in+the+basement
+          media_content_type: provider
+          announce: true
+          extra:
+            volume: 60
+  mode: parallel
+- id: '1789243790690'
+  alias: Sunset/Sunrise Lighting
+  description: 'Native replacement for Node-RED''s "Sunset/Sunrise" flow: turns living
+    room, outdoor, and accent lighting on at sunset and off at sunrise.'
+  triggers:
+  - trigger: sun
+    event: sunset
+    id: sunset
+  - trigger: sun
+    event: sunrise
+    id: sunrise
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: sunset
+      sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F307 Sunset"
+          message: Lights turned on
+      - action: switch.turn_on
+        target:
+          entity_id: group.living_room_switches
+      - action: light.turn_on
+        target:
+          entity_id: group.living_room_lamps
+      - action: light.turn_on
+        target:
+          entity_id: group.outdoor_lamps
+      - action: switch.turn_on
+        target:
+          entity_id: switch.verisure_switch
+      - action: light.turn_on
+        target:
+          entity_id: light.living_room_bulb_1_tradfri
+      - action: light.turn_on
+        target:
+          entity_id: light.b38c_outside_lights
+        data:
+          brightness: 128
+      - action: light.turn_on
+        target:
+          entity_id: light.outdoor_tree_lights_2
+        data:
+          brightness: 80
+          xy_color:
+          - 0.5528
+          - 0.4079
+      - action: light.turn_on
+        target:
+          entity_id: light.tradfri_driver_idanas_cabinet
+      - action: switch.turn_on
+        target:
+          entity_id: switch.outdoor_smart_plug_1_ledvance_plug_t_p_h
+    - conditions:
+      - condition: trigger
+        id: sunrise
+      sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F305 Sunrise"
+          message: Lights turned off
+      - action: switch.turn_off
+        target:
+          entity_id: group.living_room_switches
+      - action: light.turn_off
+        target:
+          entity_id: group.living_room_lamps
+      - action: light.turn_off
+        target:
+          entity_id: group.outdoor_lamps
+      - action: switch.turn_off
+        target:
+          entity_id: switch.verisure_switch
+      - action: light.turn_off
+        target:
+          entity_id: light.living_room_bulb_1_tradfri
+      - action: light.turn_off
+        target:
+          entity_id: light.b38c_outside_lights
+      - action: light.turn_off
+        target:
+          entity_id: light.outdoor_tree_lights_2
+      - action: light.turn_off
+        target:
+          entity_id: light.tradfri_driver_idanas_cabinet
+      - action: switch.turn_off
+        target:
+          entity_id: switch.outdoor_smart_plug_1_ledvance_plug_t_p_h
+  mode: single
+- id: '1789243794692'
+  alias: B38C Outside Lights Remote
+  description: 'Native replacement for Node-RED''s MQTT remote sub-flow in the Sunset/Sunrise
+    tab: single/double/shake control of the B38C outside lights.'
+  triggers:
+  - trigger: device
+    domain: mqtt
+    device_id: 1585d89e2a58486a669bf5a9da502a40
+    type: action
+    subtype: single
+    id: single
+  - trigger: device
+    domain: mqtt
+    device_id: 1585d89e2a58486a669bf5a9da502a40
+    type: action
+    subtype: double
+    id: double
+  - trigger: device
+    domain: mqtt
+    device_id: 1585d89e2a58486a669bf5a9da502a40
+    type: action
+    subtype: shake
+    id: shake
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: single
+      sequence:
+      - action: light.toggle
+        target:
+          entity_id: light.b38c_outside_lights
+    - conditions:
+      - condition: trigger
+        id: double
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.b38c_outside_lights
+        data:
+          brightness: 254
+          transition: 1
+    - conditions:
+      - condition: trigger
+        id: shake
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.b38c_outside_lights
+        data:
+          effect: breathe
+  mode: single
+- id: '1789244009133'
+  alias: Basement Motion Lighting (Bar)
+  description: Native replacement for Node-RED's "Bar Motion Detection" flow. Turns
+    on bar lights once on motion; only turns them off after 10 continuous minutes
+    without motion. Renewed motion during that window resets the timer without re-touching
+    the lights.
+  triggers:
+  - trigger: state
+    entity_id: group.basement_motion_sensors
+    to: 'on'
+    id: motion_on
+  - trigger: state
+    entity_id: group.basement_motion_sensors
+    to: 'off'
+    for:
+      minutes: 10
+    id: motion_off
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: motion_on
+      - condition: state
+        entity_id: group.basement_lights
+        state: 'off'
+      sequence:
+      - action: homeassistant.turn_on
+        target:
+          entity_id: group.basement_lights
+      - action: switch.turn_on
+        target:
+          entity_id: switch.tradfri_socket_bar
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F6B6 Motion Detected — Bar"
+          message: Lights turned on
+    - conditions:
+      - condition: trigger
+        id: motion_off
+      - condition: state
+        entity_id: input_boolean.party_mode
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.barmode
+        state: 'off'
+      sequence:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.tradfri_socket_bar
+      - action: homeassistant.turn_off
+        target:
+          entity_id: group.basement_lights
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F6B6 No Motion — Bar"
+          message: Lights turned off
+  mode: restart
+- id: '1789244012462'
+  alias: Bedroom Motion Lighting
+  description: 'Native replacement for Node-RED''s "Bedroom" motion sub-flow: turns
+    on the ceiling light on motion if it''s dark, off after 5 continuous minutes without
+    motion.'
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.aqara_motion_1_occupancy
+    to: 'on'
+    id: motion_on
+  - trigger: state
+    entity_id: binary_sensor.aqara_motion_1_occupancy
+    to: 'off'
+    for:
+      minutes: 5
+    id: motion_off
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: motion_on
+      - condition: numeric_state
+        entity_id: sensor.aqara_motion_1_illuminance
+        below: 40
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.ikea_bedoom_ceiling
+    - conditions:
+      - condition: trigger
+        id: motion_off
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.ikea_bedoom_ceiling
+  mode: restart
+- id: '1789244263490'
+  alias: Verisure Alarm Status Lighting
+  description: 'Native replacement for Node-RED''s "Verisure Alarm Status" flow: sets
+    the hallway light and notifies on each alarm state change.'
+  triggers:
+  - trigger: state
+    entity_id: alarm_control_panel.verisure_alarm
+    to: armed_home
+    id: armed_home
+  - trigger: state
+    entity_id: alarm_control_panel.verisure_alarm
+    to: armed_away
+    id: armed_away
+  - trigger: state
+    entity_id: alarm_control_panel.verisure_alarm
+    to: disarmed
+    id: disarmed
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: armed_home
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.hallway
+        data:
+          rgb_color:
+          - 0
+          - 39
+          - 0
+          brightness: 150
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F6A8 Alarm: Armed Home"
+          message: Hallway light updated
+    - conditions:
+      - condition: trigger
+        id: armed_away
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.hallway
+        data:
+          rgb_color:
+          - 0
+          - 100
+          - 255
+          brightness: 255
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F6A8 Alarm: Armed Away"
+          message: Hallway light updated
+    - conditions:
+      - condition: trigger
+        id: disarmed
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.hallway
+        data:
+          profile: relax
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F6A8 Alarm: Disarmed"
+          message: Hallway light updated
+  mode: single
+- id: '1789244267218'
+  alias: Verisure Auto Arm/Disarm Home
+  description: 'Native replacement for Node-RED''s "Auto enable/disable Armed Home"
+    flow: arms home at 00:15 (skipped if party_mode is on), disarms at 06:00 (skipped
+    if away_mode is on).'
+  triggers:
+  - trigger: time
+    at: 00:15:00
+    id: arm_time
+  - trigger: time
+    at: 07:00:00
+    id: disarm_time
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: arm_time
+      - condition: state
+        entity_id: input_boolean.party_mode
+        state: 'off'
+      sequence:
+      - action: alarm_control_panel.alarm_arm_home
+        target:
+          entity_id: alarm_control_panel.verisure_alarm
+        data:
+          code: 056805
+    - conditions:
+      - condition: trigger
+        id: disarm_time
+      - condition: state
+        entity_id: input_boolean.away_mode
+        state: 'off'
+      sequence:
+      - action: alarm_control_panel.alarm_disarm
+        target:
+          entity_id: alarm_control_panel.verisure_alarm
+        data:
+          code: 056805
+  mode: single
+- id: '1789244273397'
+  alias: Front Door Autolock
+  description: 'Native replacement for Node-RED''s "Lock / Unlock Front Door" flow:
+    locks the front door at 21:30, and also re-locks it if found unlocked for 1+ minute
+    overnight (21:35-08:00). Skipped entirely if party_mode is on. Verifies the lock
+    actually engaged.'
+  triggers:
+  - trigger: time
+    at: '21:30:00'
+    id: scheduled
+  - trigger: state
+    entity_id: lock.inngangsdor
+    to: unlocked
+    for:
+      minutes: 1
+    id: door_unlocked
+  conditions:
+  - condition: or
+    conditions:
+    - condition: trigger
+      id: scheduled
+    - condition: and
+      conditions:
+      - condition: trigger
+        id: door_unlocked
+      - condition: time
+        after: '21:35:00'
+        before: 08:00:00
+  actions:
+  - if:
+    - condition: state
+      entity_id: input_boolean.party_mode
+      state: 'on'
+    then:
+    - action: notify.send_message
+      target:
+        entity_id: notify.household_notify
+      data:
+        title: "\U0001F510 Front Door"
+        message: Party mode enabled — not locked automatically
+    else:
+    - if:
+      - condition: state
+        entity_id: lock.inngangsdor
+        state: locked
+      then:
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F510 Front Door"
+          message: Already locked
+      else:
+      - action: lock.lock
+        target:
+          entity_id: lock.inngangsdor
+        data:
+          code: 056805
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F510 Front Door"
+          message: Locked automatically
+      - delay:
+          minutes: 1
+      - if:
+        - condition: state
+          entity_id: lock.inngangsdor
+          state: unlocked
+        then:
+        - action: notify.send_message
+          target:
+            entity_id: notify.household_notify
+          data:
+            title: "\U0001F510 Front Door"
+            message: Lock failed
+            data:
+              push:
+                sound:
+                  critical: 1
+                  name: default
+                  volume: 1
+  mode: single
+- id: '1789244380423'
+  alias: Scooter Switch Remote
+  description: 'Native replacement for Node-RED''s "Scooter Switch" flow: Trådfri
+    on/off remote controls the scooter charger outlet.'
+  triggers:
+  - trigger: device
+    domain: mqtt
+    device_id: 1d5c787cbec1c8ade2010b8d41ba59e4
+    type: action
+    subtype: 'on'
+    id: 'on'
+  - trigger: device
+    domain: mqtt
+    device_id: 1d5c787cbec1c8ade2010b8d41ba59e4
+    type: action
+    subtype: 'off'
+    id: 'off'
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: 'on'
+      sequence:
+      - action: switch.turn_on
+        target:
+          entity_id: switch.tradfri_socket_02
+    - conditions:
+      - condition: trigger
+        id: 'off'
+      sequence:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.tradfri_socket_02
+  mode: single
+- id: '1789244382957'
+  alias: Scooter Switch Auto Off
+  description: 'Native replacement for Node-RED''s "Sparkehjul Auto Off 4t" flow:
+    safety cutoff, turns the scooter charger outlet off 4 hours after it was turned
+    on.'
+  triggers:
+  - trigger: state
+    entity_id: switch.tradfri_socket_02
+    to: 'on'
+    id: turned_on
+  conditions: []
+  actions:
+  - delay:
+      hours: 4
+  - if:
+    - condition: state
+      entity_id: switch.tradfri_socket_02
+      state: 'on'
+    then:
+    - action: switch.turn_off
+      target:
+        entity_id: switch.tradfri_socket_02
+  mode: restart
+- id: '1789244474298'
+  alias: Bedroom Lights Remote
+  description: Native replacement for Node-RED's "Bedroom Lights" flow. Fixes a bug
+    where both max-brightness and +20 step fired on the same brightness_up_click event;
+    now hold=max, click=+/-20 step.
+  triggers:
+  - trigger: device
+    domain: mqtt
+    device_id: 51989a5bbbcd0be5b02867aab1be4653
+    type: action
+    subtype: toggle
+    id: toggle
+  - trigger: device
+    domain: mqtt
+    device_id: 51989a5bbbcd0be5b02867aab1be4653
+    type: action
+    subtype: brightness_up_hold
+    id: max_brightness
+  - trigger: device
+    domain: mqtt
+    device_id: 51989a5bbbcd0be5b02867aab1be4653
+    type: action
+    subtype: brightness_up_click
+    id: brightness_up
+  - trigger: device
+    domain: mqtt
+    device_id: 51989a5bbbcd0be5b02867aab1be4653
+    type: action
+    subtype: brightness_down_click
+    id: brightness_down
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: toggle
+      sequence:
+      - action: light.toggle
+        target:
+          entity_id: light.ikea_bedoom_ceiling
+        data:
+          brightness: 128
+          transition: 1
+    - conditions:
+      - condition: trigger
+        id: max_brightness
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.ikea_bedoom_ceiling
+        data:
+          brightness: 254
+          transition: 1
+    - conditions:
+      - condition: trigger
+        id: brightness_up
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.ikea_bedoom_ceiling
+        data:
+          brightness_step: 20
+    - conditions:
+      - condition: trigger
+        id: brightness_down
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.ikea_bedoom_ceiling
+        data:
+          brightness_step: -20
+  mode: single
+- id: '1789244626156'
+  alias: Kitchen Lights Remote
+  description: 'Native replacement for Node-RED''s "Kitchen Lights" flow: TSB01 (TRADFRI
+    shortcut button) and BILRESA dual button (Matter) both control the kitchen counter
+    lights -- Button 1 = toggle, Button 2 = dim 50%. Triggers on the event entity''s
+    own state (a fresh timestamp on every press) rather than the event_type attribute,
+    then filters to multi_press_1 in a condition -- an attribute-based ''to'' trigger
+    silently misses consecutive same-type presses (e.g. two single-clicks in a row
+    both report event_type=multi_press_1, which HA''s attribute trigger sees as no
+    change and won''t re-fire on).'
+  triggers:
+  - trigger: device
+    domain: mqtt
+    device_id: 68be30184464a41c9d77cb9947a29c88
+    type: action
+    subtype: 'on'
+    id: toggle
+  - trigger: device
+    domain: mqtt
+    device_id: 68be30184464a41c9d77cb9947a29c88
+    type: action
+    subtype: brightness_move_up
+    id: dim_50
+  - trigger: state
+    entity_id: event.bilresa_dual_button_button_1
+    id: toggle
+  - trigger: state
+    entity_id: event.bilresa_dual_button_button_2
+    id: dim_50
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: toggle
+      - '{{ trigger.platform != ''state'' or trigger.to_state.attributes.get(''event_type'')
+        == ''multi_press_1'' }}'
+      sequence:
+      - action: light.toggle
+        target:
+          entity_id: light.kitchen_counter_lights
+        data:
+          brightness: 255
+          transition: 2
+    - conditions:
+      - condition: trigger
+        id: dim_50
+      - '{{ trigger.platform != ''state'' or trigger.to_state.attributes.get(''event_type'')
+        == ''multi_press_1'' }}'
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.kitchen_counter_lights
+        data:
+          brightness: 127
+  mode: single
+- id: '1789244974720'
+  alias: Unavailable Lights Check
+  description: Alerts when the number of unavailable lights has gone UP and stayed
+    up for 5 minutes (a light that drops out briefly, or a light coming back, does
+    not alert), plus a reminder every morning at 09:00 while any light is still unavailable.
+  triggers:
+  - trigger: state
+    entity_id: sensor.unavailable_lights
+    to:
+    for:
+      minutes: 5
+    id: outage
+  - trigger: time
+    at: 09:00:00
+    id: reminder
+  conditions:
+  - condition: numeric_state
+    entity_id: sensor.unavailable_lights
+    above: 0
+  - condition: or
+    conditions:
+    - condition: trigger
+      id: reminder
+    - condition: template
+      value_template: '{{ (trigger.to_state.state | int(0)) > ((trigger.from_state.state
+        if trigger.from_state else ''0'') | int(0)) }}'
+  actions:
+  - variables:
+      stale_lights: '{{ states.light | selectattr(''state'', ''eq'', ''unavailable'')
+        | map(attribute=''name'') | list | join('', '') }}'
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F4A1 Unavailable Lights"
+      message: '{{ ''Still unavailable'' if trigger.id == ''reminder'' else ''Unavailable''
+        }}: {{ stale_lights }}'
+  mode: single
+- id: '1789245515428'
+  alias: Daily Mode Reset
+  description: 'Native replacement for Node-RED''s "Check status and auto-disable
+    if enabled" flow. Fixes two bugs: Night Mode check was testing party_mode instead
+    of night_mode, and both checks had inverted halt logic (disabling+notifying only
+    when already off, doing nothing when actually left on). At 07:00, disables night_mode
+    and party_mode if either is left on.'
+  triggers:
+  - trigger: time
+    at: 07:00:00
+  conditions: []
+  actions:
+  - if:
+    - condition: state
+      entity_id: input_boolean.night_mode
+      state: 'on'
+    then:
+    - action: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.night_mode
+    - action: notify.send_message
+      target:
+        entity_id: notify.household_notify
+      data:
+        title: "\U0001F6CC Night Mode"
+        message: Disabled
+  - if:
+    - condition: state
+      entity_id: input_boolean.party_mode
+      state: 'on'
+    then:
+    - action: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.party_mode
+    - action: notify.send_message
+      target:
+        entity_id: notify.household_notify
+      data:
+        title: "\U0001F37E Party Mode"
+        message: Disabled
+  mode: single
+- id: '1789245986469'
+  alias: Night Mode Activated
+  description: Runs the night-mode lights-off script whenever input_boolean.night_mode
+    is turned on (iOS Shortcut, manual toggle, or the 02:00 auto-enable).
+  triggers:
+  - trigger: state
+    entity_id: input_boolean.night_mode
+    to: 'on'
+  conditions: []
+  actions:
+  - action: script.turn_on
+    target:
+      entity_id: script.night_mode_lights_off
+  mode: single
+- id: '1789245988805'
+  alias: Night Mode Auto Enable
+  description: 'Native replacement for Node-RED''s "02:00 Enable Night Mode" flow:
+    at 02:00, turns on night_mode if it isn''t already on, unless party_mode is active.'
+  triggers:
+  - trigger: time
+    at: 02:00:00
+  conditions:
+  - condition: state
+    entity_id: input_boolean.party_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.night_mode
+    state: 'off'
+  actions:
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.night_mode
+  mode: single
+- id: '1789246278964'
+  alias: iOS Shortcuts Mode Control
+  description: 'Native replacement for Node-RED''s "iOS/Watch Events" flow: iOS Shortcuts
+    actions (Night, party-mode, away-mode) toggle the corresponding mode booleans.
+    The Night action now only sets night_mode on — automation.night_mode_activated
+    handles the actual light/lock actions, so they''re no longer duplicated here.'
+  triggers:
+  - trigger: event
+    event_type: ios.action_fired
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - '{{ trigger.event.data.event.actionName == ''Night'' }}'
+      sequence:
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.night_mode
+    - conditions:
+      - '{{ trigger.event.data.event.actionName == ''party-mode'' }}'
+      sequence:
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.party_mode
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.barmode
+    - conditions:
+      - '{{ trigger.event.data.event.actionName == ''away-mode'' }}'
+      sequence:
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.away_mode
+  mode: single
+- id: '1789246996212'
+  alias: Sonos Night/Day Mode
+  description: 'Native replacement for Node-RED''s "Sonos Night/Day Mode" flow: enables
+    night sound + speech enhancement at 23:00 (skipped if party_mode is on). At 08:00
+    disables night sound and keeps speech enhancement ON.'
+  triggers:
+  - trigger: time
+    at: '23:00:00'
+    id: night
+  - trigger: time
+    at: 08:00:00
+    id: day
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: night
+      - condition: state
+        entity_id: input_boolean.party_mode
+        state: 'off'
+      sequence:
+      - action: switch.turn_on
+        target:
+          entity_id: switch.sonos_living_room_soundbar_night_sound
+      - action: switch.turn_on
+        target:
+          entity_id: switch.sonos_living_room_soundbar_speech_enhancement_2
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F50A Sonos"
+          message: Night Mode enabled
+    - conditions:
+      - condition: trigger
+        id: day
+      sequence:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.sonos_living_room_soundbar_night_sound
+      - action: switch.turn_on
+        target:
+          entity_id: switch.sonos_living_room_soundbar_speech_enhancement_2
+      - action: notify.send_message
+        target:
+          entity_id: notify.household_notify
+        data:
+          title: "\U0001F50A Sonos"
+          message: Night Mode disabled (speech enhancement stays on)
+  mode: single
+- id: '1789472542754'
+  alias: Water Heater Draw Logging
+  description: Brackets a fast-rate drain event (detected via L/min derivative, so
+    slow standby heat loss is never mistaken for a real draw) and logs the total volume
+    once the rate recovers. Tracks the MINIMUM raw capacity seen during the active
+    window (updated on every raw sensor report while draw_detected is on) rather than
+    reading a single live value at the 'off' moment — the raw capacity sensor only
+    reports every ~10min, and reading it live at 'off' time was producing 0 or negative
+    drops because the raw sensor hadn't caught up with the actual minimum yet (or
+    had already started climbing back up during reheating).
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.laundry_room_charger3_9454c5a69354_water_heater_draw_detected
+    to: 'on'
+    id: start
+  - trigger: state
+    entity_id: binary_sensor.laundry_room_charger3_9454c5a69354_water_heater_draw_detected
+    to: 'off'
+    id: end
+  - trigger: state
+    entity_id: sensor.charger3_9454c5a69354_capacity_mixed_water_40degc
+    id: capacity_update
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: start
+      sequence:
+      - variables:
+          current_capacity: '{{ states(''sensor.charger3_9454c5a69354_capacity_mixed_water_40degc'')
+            | float(0) }}'
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.water_heater_draw_start_capacity
+        data:
+          value: '{{ current_capacity }}'
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.water_heater_draw_min_capacity
+        data:
+          value: '{{ current_capacity }}'
+    - conditions:
+      - condition: trigger
+        id: capacity_update
+      - condition: state
+        entity_id: binary_sensor.laundry_room_charger3_9454c5a69354_water_heater_draw_detected
+        state: 'on'
+      sequence:
+      - variables:
+          current_capacity: '{{ states(''sensor.charger3_9454c5a69354_capacity_mixed_water_40degc'')
+            | float(0) }}'
+          tracked_min: '{{ states(''input_number.water_heater_draw_min_capacity'')
+            | float(0) }}'
+      - if:
+        - condition: template
+          value_template: '{{ current_capacity < tracked_min }}'
+        then:
+        - action: input_number.set_value
+          target:
+            entity_id: input_number.water_heater_draw_min_capacity
+          data:
+            value: '{{ current_capacity }}'
+    - conditions:
+      - condition: trigger
+        id: end
+      sequence:
+      - variables:
+          drop: '{{ states(''input_number.water_heater_draw_start_capacity'') | float(0)
+            - states(''input_number.water_heater_draw_min_capacity'') | float(0) }}'
+      - if:
+        - condition: template
+          value_template: '{{ drop >= 8 }}'
+        then:
+        - action: input_number.set_value
+          target:
+            entity_id: input_number.water_heater_last_draw
+          data:
+            value: '{{ drop }}'
+  mode: single
+- id: '1789895580171'
+  alias: Spa Offline Notification
+  description: Mirrors the UPS Unavailable Notification pattern. A 5-minute debounce
+    (longer than the UPS's 1-minute) filters out the MSpa integration's normal self-healing
+    re-auth blips (typically recovers within ~2 minutes), so this only fires on a
+    real, sustained outage.
+  triggers:
+  - trigger: state
+    entity_id:
+    - climate.outside_mspa_mono_heater_control
+    to: unavailable
+    for:
+      minutes: 5
+  conditions: []
+  actions:
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F50C Spa Offline"
+      message: Mspa Mono has been unavailable for 5+ minutes
+  mode: single
+- id: '1789895582633'
+  alias: Spa Online Notification
+  description: Mirrors the UPS Online Notification pattern.
+  triggers:
+  - trigger: state
+    entity_id:
+    - climate.outside_mspa_mono_heater_control
+    from: unavailable
+    to:
+    for:
+      minutes: 1
+  conditions: []
+  actions:
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F6CB️ Spa Online"
+      message: Mspa Mono connection restored
+  mode: single
+- id: '1789895584286'
+  alias: Spa Low Temperature Alert
+  description: Warns if the spa water temperature drops below its normal operating
+    minimum (20°C) while expected to be heated — e.g. heater failure or power loss.
+  triggers:
+  - trigger: numeric_state
+    entity_id: sensor.spa_current_temperature
+    below: 20
+    for:
+      minutes: 10
+  conditions: []
+  actions:
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F976 Spa Water Cold"
+      message: Spa temperature has been below 20°C for 10+ minutes
+  mode: single
+- id: '1789981150402'
+  alias: Network Offline Notification
+  description: Alerts when the local network (UniFi controller/gateway) becomes unreachable
+    via ping, distinct from the UPS USB-link alert. A 3-minute debounce filters single
+    dropped pings.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.192_168_5_2
+    to: 'off'
+    for:
+      minutes: 3
+  conditions: []
+  actions:
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F4F6 Network Unreachable"
+      message: Gateway/UniFi controller not responding for 3+ minutes
+  mode: single
+- id: '1789981152157'
+  alias: Network Online Notification
+  description: Alerts when the local network (UniFi controller/gateway) is reachable
+    again.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.192_168_5_2
+    to: 'on'
+    for:
+      minutes: 1
+  conditions: []
+  actions:
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F4F6 Network Reachable"
+      message: Gateway/UniFi controller responding again
+  mode: single
+- id: '1789981365396'
+  alias: nut-1 Host Offline Notification
+  description: Alerts when the nut-1 host itself is unreachable on the network, distinct
+    from a USB/driver data-stale issue on an otherwise-reachable host.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.nut_1_core_vninja_com
+    to: 'off'
+    for:
+      minutes: 3
+  conditions: []
+  actions:
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F5A5️ nut-1 Host Unreachable"
+      message: nut-1 not responding to ping for 3+ minutes — host/VM may be down,
+        not just a USB issue
+  mode: single
+- id: '1789981367069'
+  alias: nut-1 Host Online Notification
+  description: Alerts when the nut-1 host is reachable again.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.nut_1_core_vninja_com
+    to: 'on'
+    for:
+      minutes: 1
+  conditions: []
+  actions:
+  - action: notify.send_message
+    target:
+      entity_id: notify.household_notify
+    data:
+      title: "\U0001F5A5️ nut-1 Host Reachable"
+      message: nut-1 responding to ping again
+  mode: single
+- id: '1793828051804'
+  alias: Nest Hub Dashboard Cast
+  description: Re-casts the dashboard to a Nest Hub display via the cast container
+    (POST to 192.168.31.41:8090) when the hub has been off for 3 minutes. Replaces
+    the Node-RED 'Nest Hub ... State' flows. A failed POST sends a notification.
+  triggers:
+  - trigger: state
+    entity_id: media_player.nesthube5f7_3
+    to: 'off'
+    for:
+      minutes: 3
+    id: livingroom
+  - trigger: state
+    entity_id: media_player.nesthub6398_2
+    to: 'off'
+    for:
+      minutes: 3
+    id: bar
+  - trigger: state
+    entity_id: media_player.nesthub876d
+    to: 'off'
+    for:
+      minutes: 3
+    id: bedroom
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: livingroom
+      sequence:
+      - action: rest_command.cast_livingroom
+        response_variable: cast_result
+        continue_on_error: true
+      - if:
+        - condition: template
+          value_template: '{{ cast_result is not defined or cast_result.status | int(0)
+            >= 400 }}'
+        then:
+        - action: notify.send_message
+          target:
+            entity_id: notify.household_notify
+          data:
+            title: Dashboard cast failed
+            message: Casting to the Living Room display failed. Check the cast container
+              at 192.168.31.41:8090.
+    - conditions:
+      - condition: trigger
+        id: bar
+      sequence:
+      - action: rest_command.cast_bar
+        response_variable: cast_result
+        continue_on_error: true
+      - if:
+        - condition: template
+          value_template: '{{ cast_result is not defined or cast_result.status | int(0)
+            >= 400 }}'
+        then:
+        - action: notify.send_message
+          target:
+            entity_id: notify.household_notify
+          data:
+            title: Dashboard cast failed
+            message: Casting to the Bar display failed. Check the cast container at
+              192.168.31.41:8090.
+    - conditions:
+      - condition: trigger
+        id: bedroom
+      sequence:
+      - action: rest_command.cast_bedroom
+        response_variable: cast_result
+        continue_on_error: true
+      - if:
+        - condition: template
+          value_template: '{{ cast_result is not defined or cast_result.status | int(0)
+            >= 400 }}'
+        then:
+        - action: notify.send_message
+          target:
+            entity_id: notify.household_notify
+          data:
+            title: Dashboard cast failed
+            message: Casting to the Bedroom display failed. Check the cast container
+              at 192.168.31.41:8090.
+  mode: parallel
+  max: 3
+- id: '1793829090749'
+  alias: Scenic Scheduled Pre-heat
+  description: One-off air-con start for the Scenic. Starts 10 minutes before the
+    date and time in input_datetime.scenic_ready_by, at the temperature in input_number.scenic_pre_heat_temperature,
+    while input_boolean.scenic_pre_heat_scheduled is on. Turns the schedule off after
+    it runs.
+  triggers:
+  - trigger: time
+    at:
+      entity_id: input_datetime.scenic_ready_by
+      offset: -00:10:00
+  conditions:
+  - condition: state
+    entity_id: input_boolean.scenic_pre_heat_scheduled
+    state: 'on'
+  actions:
+  - action: renault.ac_start
+    data:
+      vehicle: b1c866f469a582c5ab78e186acf0cadc
+      temperature: '{{ states(''input_number.scenic_pre_heat_temperature'') | float(21)
+        }}'
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.scenic_pre_heat_scheduled
+  mode: single
+- id: '1794577644958'
+  alias: Scenic Ready-by Date + Time -> Ready-by
+  description: Combines the date picker (input_datetime.scenic_ready_by_date) and
+    the 24h time dropdown (input_select.scenic_ready_by_time) into input_datetime.scenic_ready_by,
+    which the Scenic Scheduled Pre-heat automation triggers on.
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_datetime.scenic_ready_by_date
+    - input_select.scenic_ready_by_time
+  conditions:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id:
+      - input_datetime.scenic_ready_by_date
+      - input_select.scenic_ready_by_time
+      state:
+      - unknown
+      - unavailable
+  actions:
+  - action: input_datetime.set_datetime
+    target:
+      entity_id: input_datetime.scenic_ready_by
+    data:
+      datetime: '{{ states(''input_datetime.scenic_ready_by_date'') }} {{ states(''input_select.scenic_ready_by_time'')
+        }}:00'
+  mode: restart
+- id: '1794660563749'
+  alias: Scenic charge session capacity estimate
+  description: Records the car's charge level and the Easee lifetime energy when a
+    charge starts. When it ends, and the session added at least 15 percentage points,
+    estimates the battery's usable capacity from the energy delivered (times the charging
+    efficiency helper) divided by the charge gained, and stores it in input_number.scenic_capacity_estimate.
+    A rolling median of those estimates and a health percentage against the nominal
+    capacity are derived by helpers.
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.scenic_charging
+    from: 'off'
+    to: 'on'
+    id: start
+  - trigger: state
+    entity_id: binary_sensor.scenic_charging
+    from: 'on'
+    to: 'off'
+    id: end
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: start
+      - condition: template
+        value_template: '{{ is_number(states(''sensor.scenic_battery'')) and is_number(states(''sensor.easee_e_lifetime_energy''))
+          }}'
+      sequence:
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.scenic_charge_start_soc
+        data:
+          value: '{{ states(''sensor.scenic_battery'') | float }}'
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.scenic_charge_start_energy
+        data:
+          value: '{{ states(''sensor.easee_e_lifetime_energy'') | float }}'
+    - conditions:
+      - condition: trigger
+        id: end
+      sequence:
+      - variables:
+          soc_start: '{{ states(''input_number.scenic_charge_start_soc'') | float(0)
+            }}'
+          soc_end: '{{ states(''sensor.scenic_battery'') | float(0) }}'
+          energy_start: '{{ states(''input_number.scenic_charge_start_energy'') |
+            float(0) }}'
+          energy_end: '{{ states(''sensor.easee_e_lifetime_energy'') | float(0) }}'
+          efficiency: '{{ states(''input_number.scenic_charging_efficiency'') | float(0.92)
+            }}'
+      - if:
+        - condition: template
+          value_template: '{{ soc_start > 0 and (soc_end - soc_start) >= 15 and (energy_end
+            - energy_start) > 0 }}'
+        then:
+        - action: input_number.set_value
+          target:
+            entity_id: input_number.scenic_capacity_estimate
+          data:
+            value: '{{ ((energy_end - energy_start) * efficiency / ((soc_end - soc_start)
+              / 100)) | round(2) }}'
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.scenic_charge_start_soc
+        data:
+          value: 0
+  mode: single
+- id: '1794661101967'
+  alias: Scenic trip log
+  description: Detects a trip from the car's mileage updates. A trip starts when mileage
+    rises while no trip is open, stays open while mileage keeps rising, and is closed
+    after 30 minutes without a rise. On close it estimates energy from the charge
+    change times the estimated usable capacity, stores the last trip values and adds
+    a line to the Scenic trips to-do list. Start and end times are the times the car
+    reported, so they are approximate.
+  triggers:
+  - trigger: state
+    entity_id: sensor.scenic_mileage
+    id: moved
+  - trigger: state
+    entity_id: sensor.scenic_battery
+    id: battery
+  - trigger: state
+    entity_id: timer.scenic_trip_timeout
+    from: active
+    to: idle
+    id: done
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: battery
+      - condition: state
+        entity_id: timer.scenic_trip_timeout
+        state: idle
+      - condition: template
+        value_template: '{{ is_number(trigger.to_state.state) }}'
+      sequence:
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.scenic_trip_start_soc
+        data:
+          value: '{{ trigger.to_state.state | float }}'
+    - conditions:
+      - condition: trigger
+        id: moved
+      - condition: template
+        value_template: '{{ trigger.from_state is not none and is_number(trigger.from_state.state)
+          and is_number(trigger.to_state.state) and (trigger.to_state.state | float)
+          > (trigger.from_state.state | float) }}'
+      sequence:
+      - if:
+        - condition: state
+          entity_id: timer.scenic_trip_timeout
+          state: idle
+        then:
+        - action: input_number.set_value
+          target:
+            entity_id: input_number.scenic_trip_start_mileage
+          data:
+            value: '{{ trigger.from_state.state | float }}'
+        - action: input_datetime.set_datetime
+          target:
+            entity_id: input_datetime.scenic_trip_start
+          data:
+            datetime: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.scenic_trip_end_mileage
+        data:
+          value: '{{ trigger.to_state.state | float }}'
+      - action: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.scenic_last_trip_end
+        data:
+          datetime: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'
+      - action: timer.start
+        target:
+          entity_id: timer.scenic_trip_timeout
+    - conditions:
+      - condition: trigger
+        id: done
+      sequence:
+      - variables:
+          start_km: '{{ states(''input_number.scenic_trip_start_mileage'') | float(0)
+            }}'
+          end_km: '{{ states(''input_number.scenic_trip_end_mileage'') | float(0)
+            }}'
+          dist: '{{ (end_km - start_km) | round(1) }}'
+          soc_start: '{{ states(''input_number.scenic_trip_start_soc'') | float(0)
+            }}'
+          soc_end: '{{ states(''sensor.scenic_battery'') | float(0) }}'
+          capacity: '{{ states(''sensor.scenic_capacity_estimate_median'') | float(0)
+            }}'
+          d_soc: '{{ soc_start - soc_end }}'
+          energy: '{{ ((d_soc / 100 * capacity) | round(2)) if (d_soc > 0 and soc_end
+            > 0) else 0 }}'
+          cons: '{{ ((energy / dist * 100) | round(1)) if (dist >= 3 and energy >
+            0) else 0 }}'
+          s: '{{ states(''input_datetime.scenic_trip_start'') }}'
+          e: '{{ states(''input_datetime.scenic_last_trip_end'') }}'
+          label: '{{ s[8:10] }}.{{ s[5:7] }} {{ s[11:16] }}-{{ e[11:16] }}'
+      - if:
+        - condition: template
+          value_template: '{{ dist >= 0.5 }}'
+        then:
+        - action: input_number.set_value
+          target:
+            entity_id: input_number.scenic_last_trip_distance
+          data:
+            value: '{{ dist }}'
+        - action: input_number.set_value
+          target:
+            entity_id: input_number.scenic_last_trip_energy
+          data:
+            value: '{{ energy }}'
+        - if:
+          - condition: template
+            value_template: '{{ cons > 0 }}'
+          then:
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.scenic_last_trip_consumption
+            data:
+              value: '{{ cons }}'
+        - action: counter.increment
+          target:
+            entity_id: counter.scenic_trips_logged
+        - action: todo.add_item
+          target:
+            entity_id: todo.scenic_trips
+          data:
+            item: '{{ label }} · {{ dist }} km · {{ soc_start | int }} to {{ soc_end
+              | int }}% · {{ energy }} kWh · {{ cons if cons > 0 else ''n/a'' }} kWh/100
+              km'
+            description: Energy is estimated from the charge change times the estimated
+              usable capacity ({{ capacity }} kWh). Times are when the car reported,
+              so they are approximate.
+        - event: scenic_trip_logged
+          event_data:
+            label: '{{ label }}'
+            km: '{{ dist }}'
+            soc_start: '{{ soc_start | int }}'
+            soc_end: '{{ soc_end | int }}'
+            kwh: '{{ energy }}'
+            cons: '{{ cons }}'
+  mode: queued
+  max: 10

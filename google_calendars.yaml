@@ -10,7 +10,6 @@
       ignore_availability: true
       name: Fixtures Brann
       track: true
-      max_results: 10
 
 - cal_id: christian@drible.net
   entities:
@@ -30,7 +29,6 @@
       ignore_availability: true
       name: Fixtures Liverpool
       track: true
-      max_results: 10
 
 - cal_id: addressbook#contacts@group.v.calendar.google.com
   entities:
